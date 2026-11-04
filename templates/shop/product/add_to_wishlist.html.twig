@@ -4,7 +4,8 @@
 {# The request URI is the live-component endpoint on re-render: build the page URL from the product. #}
 {% set return_to = path('sylius_shop_product_show', {slug: hookable_metadata.context.product.slug}) %}
 
-<div class="mb-3">
+<div class="mb-3" data-bwlab-wishlist-box>
+    {% include '@BwlabSyliusWishlistPlugin/shop/_destination.html.twig' with {destinations: bwlab_wishlist_destinations(), named: false} only %}
     <button type="button"
             class="btn btn-outline-secondary"
             data-test-bwlab-wishlist-add="pdp"

@@ -46,6 +46,12 @@ bwlab_wishlist:
                 delete_confirm: 'You are about to delete the list "%name%" and everything saved in it (%products%). Products in your other lists and in the shop are not affected. This cannot be undone.'
                 delete_submit: Yes, delete the list
                 move_to: Move to…
+            destination:
+                label: Choose the list
+                default_name: My Favorites
+                new_list: New list…
+                new_name_label: Name of the new list
+                new_name_placeholder: List name
         admin:
             menu:
                 wishlist: Wishlist

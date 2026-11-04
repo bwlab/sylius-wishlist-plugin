@@ -1,0 +1,12 @@
+{# Destination menu next to a save button. Variables: destinations (bwlab_wishlist_destinations()), named (true inside our own form; false inside the live add-to-cart form, which must not receive extra fields). #}
+{% if destinations|length > 0 %}
+    <span class="d-inline-flex flex-wrap align-items-center gap-1" data-live-ignore>
+        <select class="form-select form-select-sm w-auto" {% if named %}name="list"{% endif %} aria-label="{{ 'bwlab_wishlist.ui.shop.destination.label'|trans }}" data-bwlab-wishlist-destination data-test-bwlab-wishlist-destination>
+            {% for destination in destinations %}
+                <option value="{{ destination.id }}"{% if destination.selected %} selected{% endif %}>{{ destination.name }}</option>
+            {% endfor %}
+            <option value="new" data-test-bwlab-wishlist-destination-new>{{ 'bwlab_wishlist.ui.shop.destination.new_list'|trans }}</option>
+        </select>
+        <input type="text" class="form-control form-control-sm w-auto d-none" {% if named %}name="list_name"{% endif %} maxlength="60" autocomplete="off" placeholder="{{ 'bwlab_wishlist.ui.shop.destination.new_name_placeholder'|trans }}" aria-label="{{ 'bwlab_wishlist.ui.shop.destination.new_name_label'|trans }}" data-bwlab-wishlist-new-name data-test-bwlab-wishlist-new-name>
+    </span>
+{% endif %}

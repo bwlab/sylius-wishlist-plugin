@@ -15,3 +15,5 @@ bwlab_wishlist:
     list_renamed: 'La lista è stata rinominata in "%name%".'
     list_deleted: 'La lista "%name%" è stata eliminata.'
     item_moved: 'Il prodotto è stato spostato in "%list%".'
+    item_added_to_list: 'Salvato in %list%.'
+    item_already_in_list: 'Il prodotto è già in %list%.'
