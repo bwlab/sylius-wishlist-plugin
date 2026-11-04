@@ -19,14 +19,17 @@ final class CurrentWishlistItemFinder
     {
     }
 
-    public function wishlist(): WishlistInterface
+    /** The default list when $listId is omitted (phase 1 behaviour), else that list if it is the owner's. */
+    public function wishlist(?int $listId = null): WishlistInterface
     {
-        return $this->resolver->find() ?? throw new NotFoundHttpException('Wishlist not found.');
+        $wishlist = null === $listId ? $this->resolver->find() : $this->resolver->findOwned($listId);
+
+        return $wishlist ?? throw new NotFoundHttpException('Wishlist not found.');
     }
 
-    public function find(int $id): WishlistItemInterface
+    public function find(int $id, ?int $listId = null): WishlistItemInterface
     {
-        foreach ($this->wishlist()->getItems() as $item) {
+        foreach ($this->wishlist($listId)->getItems() as $item) {
             if ($item->getId() === $id) {
                 return $item;
             }

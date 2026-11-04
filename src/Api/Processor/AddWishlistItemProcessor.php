@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use Bwlab\SyliusWishlistPlugin\Api\Factory\WishlistViewFactory;
 use Bwlab\SyliusWishlistPlugin\Api\Input\AddWishlistItem;
+use Bwlab\SyliusWishlistPlugin\Api\Input\ListReference;
 use Bwlab\SyliusWishlistPlugin\Api\Resource\ShopWishlistItem;
 use Bwlab\SyliusWishlistPlugin\Checker\VariantAvailabilityCheckerInterface;
 use Bwlab\SyliusWishlistPlugin\Checker\WishlistAvailability;
@@ -21,6 +22,7 @@ use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Component\Core\Repository\ProductVariantRepositoryInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /** @implements ProcessorInterface<AddWishlistItem, ShopWishlistItem> */
@@ -51,7 +53,8 @@ final class AddWishlistItemProcessor implements ProcessorInterface
             throw new UnprocessableEntityHttpException(sprintf('Variant "%s" is not available in this channel.', $data->variantCode));
         }
 
-        $wishlist = $this->resolver->getOrCreate();
+        // List omitted = default list (phase 1); a list of someone else or a missing one is the same 404.
+        $wishlist = $this->resolver->getTarget(ListReference::parse($data->list)) ?? throw new NotFoundHttpException('Wishlist not found.');
         $this->modifier->addVariant($wishlist, $variant, $data->quantity, WishlistItemInterface::SOURCE_API);
         try {
             $this->wishlistRepository->add($wishlist);
