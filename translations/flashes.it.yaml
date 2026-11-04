@@ -11,3 +11,7 @@ bwlab_wishlist:
     admin:
         settings_saved: Impostazioni wishlist salvate.
     quantity_invalid: Inserisci un numero intero da 1 a 9999. La quantità non è stata modificata.
+    list_created: 'La lista "%name%" è stata creata.'
+    list_renamed: 'La lista è stata rinominata in "%name%".'
+    list_deleted: 'La lista "%name%" è stata eliminata.'
+    item_moved: 'Il prodotto è stato spostato in "%list%".'
