@@ -26,6 +26,12 @@ bwlab_wishlist:
             saved: Nella wishlist
             adding_to_cart: Aggiunta al carrello…
             choose_variant_hint: Scegli prima le opzioni del prodotto, poi salvalo.
+            destination:
+                label: Scegli la lista
+                default_name: I miei preferiti
+                new_list: Nuova lista…
+                new_name_label: Nome della nuova lista
+                new_name_placeholder: Nome della lista
         admin:
             menu:
                 wishlist: Wishlist

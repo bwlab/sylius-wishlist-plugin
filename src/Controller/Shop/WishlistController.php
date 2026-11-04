@@ -7,8 +7,10 @@ namespace Bwlab\SyliusWishlistPlugin\Controller\Shop;
 use Bwlab\SyliusWishlistPlugin\Cart\WishlistCartAdder;
 use Bwlab\SyliusWishlistPlugin\Checker\VariantAvailabilityCheckerInterface;
 use Bwlab\SyliusWishlistPlugin\Checker\WishlistAvailability;
+use Bwlab\SyliusWishlistPlugin\Destination\DestinationMenu;
 use Bwlab\SyliusWishlistPlugin\Entity\WishlistInterface;
 use Bwlab\SyliusWishlistPlugin\Entity\WishlistItemInterface;
+use Bwlab\SyliusWishlistPlugin\Exception\WishlistNameException;
 use Bwlab\SyliusWishlistPlugin\Http\ReturnPath;
 use Bwlab\SyliusWishlistPlugin\Modifier\WishlistItemModifierInterface;
 use Bwlab\SyliusWishlistPlugin\Repository\WishlistRepositoryInterface;
@@ -74,7 +76,19 @@ final class WishlistController extends AbstractController
             return $this->feedback($request, 'error', 'bwlab_wishlist.variant_not_found');
         }
 
-        $wishlist = $this->resolver->getOrCreate();
+        // Optional destination: absent = default list (phase 1 clients), "new" = create it first, otherwise the id of one of the owner's lists.
+        $listParam = (string) $request->request->get('list', '');
+        try {
+            $wishlist = 'new' === $listParam
+                ? $this->resolver->create((string) $request->request->get('list_name'))
+                : $this->resolver->getTarget('' === $listParam ? null : (ctype_digit($listParam) ? (int) $listParam : 0));
+        } catch (WishlistNameException $e) {
+            return $this->feedback($request, 'error', $e->getMessage(), null, $e->parameters, 'validators');
+        }
+        if (null === $wishlist) {
+            throw $this->createNotFoundException(); // someone else's list and a missing one look the same
+        }
+
         $added = $this->modifier->addVariant(
             $wishlist,
             $variant,
@@ -85,7 +99,17 @@ final class WishlistController extends AbstractController
             $this->wishlistRepository->add($wishlist);
         }
 
-        return $this->feedback($request, $added ? 'success' : 'info', $added ? 'bwlab_wishlist.item_added' : 'bwlab_wishlist.item_already_present', $wishlist);
+        if ('' === $listParam) {
+            return $this->feedback($request, $added ? 'success' : 'info', $added ? 'bwlab_wishlist.item_added' : 'bwlab_wishlist.item_already_present', $wishlist);
+        }
+
+        return $this->feedback(
+            $request,
+            $added ? 'success' : 'info',
+            $added ? 'bwlab_wishlist.item_added_to_list' : 'bwlab_wishlist.item_already_in_list',
+            $wishlist,
+            ['%list%' => DestinationMenu::label($wishlist, $this->translator->trans('bwlab_wishlist.ui.shop.destination.default_name'))],
+        );
     }
 
     #[Route('/item/{id}/remove', name: 'bwlab_wishlist_shop_remove', requirements: ['id' => '\d+'], methods: ['POST'])]
@@ -229,20 +253,35 @@ final class WishlistController extends AbstractController
         return $this->feedback($request, 'error', 'bwlab_wishlist.invalid_request');
     }
 
-    /** Plain form post: flash + redirect. Script call (fetch): JSON with the message and the row count, no flash. */
-    private function feedback(Request $request, string $type, string $messageKey, ?WishlistInterface $wishlist = null): Response
+    /**
+     * Plain form post: flash + redirect. Script call (fetch): JSON with the message, the row count of all lists and the list used, no flash.
+     *
+     * @param array<string, string|int> $parameters
+     */
+    private function feedback(Request $request, string $type, string $messageKey, ?WishlistInterface $wishlist = null, array $parameters = [], string $domain = 'flashes'): Response
     {
         if (!$request->isXmlHttpRequest()) {
-            $this->addFlash($type, $messageKey);
+            // Errors from other domains (list names) are translated here: the flash renderer only knows "flashes".
+            $this->addFlash($type, 'flashes' !== $domain ? $this->translator->trans($messageKey, $parameters, $domain) : ([] === $parameters ? $messageKey : ['message' => $messageKey, 'parameters' => $parameters]));
 
             return $this->back($request);
         }
 
-        return new JsonResponse([
-            'count' => $wishlist?->countItems() ?? $this->resolver->find()?->countItems() ?? 0,
-            'message' => $this->translator->trans($messageKey, [], 'flashes'),
+        // A visitor's very first save has no cookie yet: findAll() is empty, the list just saved still counts.
+        $lists = $this->resolver->findAll();
+        if (null !== $wishlist && !\in_array($wishlist, $lists, true)) {
+            $lists[] = $wishlist;
+        }
+        $payload = [
+            'count' => DestinationMenu::totalItems($lists),
+            'message' => $this->translator->trans($messageKey, $parameters, $domain),
             'type' => $type,
-        ], 'error' === $type ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK);
+        ];
+        if (null !== $wishlist && [] !== $parameters) {
+            $payload['list'] = ['id' => $wishlist->getId(), 'name' => $parameters['%list%']];
+        }
+
+        return new JsonResponse($payload, 'error' === $type ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK);
     }
 
     private function back(Request $request): RedirectResponse

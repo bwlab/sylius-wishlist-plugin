@@ -25,7 +25,7 @@
         var old = document.querySelector('[data-bwlab-wishlist-toast]');
         if (old) { old.remove(); }
         var box = document.createElement('div');
-        box.className = 'alert alert-' + ('info' === type ? 'info' : 'success') + ' shadow position-fixed top-0 end-0 m-3';
+        box.className = 'alert alert-' + ('info' === type ? 'info' : ('error' === type ? 'danger' : 'success')) + ' shadow position-fixed top-0 end-0 m-3';
         box.style.zIndex = '2000';
         box.setAttribute('role', 'alert');
         box.setAttribute('data-bwlab-wishlist-toast', '');
@@ -49,32 +49,100 @@
         badge.textContent = count;
     }
 
-    // Saves through fetch; any failure falls back to the normal form post (which also shows the flash message).
+    // Destination menu: the list names on the page, the "new list" name field, and the button state per list.
+    function destinationOf(scope) {
+        return {
+            select: scope.querySelector('[data-bwlab-wishlist-destination]'),
+            input: scope.querySelector('[data-bwlab-wishlist-new-name]')
+        };
+    }
+
+    // A list created from one menu shows up in every menu on the page and is selected in this one.
+    function syncDestination(scope, list) {
+        var id = String(list.id);
+        document.querySelectorAll('[data-bwlab-wishlist-destination]').forEach(function (select) {
+            if (!select.querySelector('option[value="' + id + '"]')) {
+                var option = document.createElement('option');
+                option.value = id;
+                option.textContent = list.name;
+                select.insertBefore(option, select.querySelector('option[value="new"]'));
+            }
+        });
+        var destination = destinationOf(scope);
+        if (destination.select) { destination.select.value = id; }
+        if (destination.input) { destination.input.value = ''; destination.input.classList.add('d-none'); }
+    }
+
+    // Saved state belongs to one list: another list in the menu brings back "Add to wishlist".
+    function resetSaved(button) {
+        var label = button.querySelector('[data-bw-label]');
+        if (label && button.dataset.addLabel) { label.textContent = button.dataset.addLabel; }
+        var icon = button.querySelector('svg');
+        if (icon) { icon.style.fill = ''; }
+        button.disabled = false;
+        delete button.dataset.bwSaved;
+        delete button.dataset.bwSavedList;
+    }
+
+    // Saves through fetch; a network or server failure falls back to the normal form post (which also shows the flash message).
+    // A refusal with a message (for instance a bad list name) is shown here and not retried.
     function save(button, url, data, fallback) {
         if (!setBusy(button, button.dataset.savingLabel || '')) { return; }
+        var scope = button.closest('[data-bwlab-wishlist-box]');
         fetch(url, {
             method: 'POST',
             body: data,
             credentials: 'same-origin',
             headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
         }).then(function (response) {
-            if (!response.ok) { throw new Error('wishlist'); }
-            return response.json();
+            if (response.ok) { return response.json(); }
+            return response.json().then(function (refusal) {
+                throw { wishlistRefusal: refusal };
+            }, function () {
+                throw new Error('wishlist');
+            });
         }).then(function (result) {
             updateCounter(result.count);
             toast(result.type, result.message);
             setIdle(button);
             var label = button.querySelector('[data-bw-label]');
-            if (label) { label.textContent = button.dataset.savedLabel; }
+            if (label) {
+                if (!button.dataset.addLabel) { button.dataset.addLabel = label.textContent; }
+                label.textContent = button.dataset.savedLabel;
+            }
             var icon = button.querySelector('svg');
             if (icon) { icon.style.fill = 'currentColor'; }
             button.dataset.bwSaved = '1';
             button.disabled = true;
-        }).catch(function () {
+            if (result.list && scope) {
+                syncDestination(scope, result.list);
+                button.dataset.bwSavedList = String(result.list.id);
+            }
+        }).catch(function (error) {
             setIdle(button);
+            if (error && error.wishlistRefusal && error.wishlistRefusal.message) {
+                toast('error', error.wishlistRefusal.message);
+                var input = scope ? destinationOf(scope).input : null;
+                if (input && !input.classList.contains('d-none')) { input.focus(); }
+                return;
+            }
             fallback();
         });
     }
+
+    document.addEventListener('change', function (event) {
+        var select = event.target.closest('[data-bwlab-wishlist-destination]');
+        if (!select) { return; }
+        var scope = select.closest('[data-bwlab-wishlist-box]');
+        if (!scope) { return; }
+        var input = destinationOf(scope).input;
+        if (input) {
+            input.classList.toggle('d-none', 'new' !== select.value);
+            if ('new' === select.value) { input.focus(); }
+        }
+        var button = scope.querySelector('[data-test-bwlab-wishlist-add]');
+        if (button && button.dataset.bwSaved && button.dataset.bwSavedList !== select.value) { resetSaved(button); }
+    });
 
     document.addEventListener('click', function (event) {
         var button = event.target.closest('[data-bwlab-wishlist-pdp]');
@@ -87,6 +155,13 @@
         var form = button.closest('form');
         var quantity = form ? form.querySelector('input[name$="[quantity]"]') : null;
         if (quantity && quantity.value) { data.append('quantity', quantity.value); }
+        // The menu has no field name here (it sits inside the add-to-cart form): send its value by hand.
+        var scope = button.closest('[data-bwlab-wishlist-box]');
+        var destination = scope ? destinationOf(scope) : { select: null, input: null };
+        if (destination.select) {
+            data.append('list', destination.select.value);
+            if ('new' === destination.select.value) { data.append('list_name', destination.input ? destination.input.value : ''); }
+        }
 
         save(button, button.dataset.url, data, function () {
             var plain = document.createElement('form');

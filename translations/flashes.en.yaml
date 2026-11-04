@@ -11,3 +11,5 @@ bwlab_wishlist:
     admin:
         settings_saved: Wishlist settings saved.
     quantity_invalid: Enter a whole number from 1 to 9999. The quantity was not changed.
+    item_added_to_list: 'Saved in %list%.'
+    item_already_in_list: 'The product is already in %list%.'
