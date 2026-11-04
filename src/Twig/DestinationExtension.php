@@ -7,9 +7,10 @@ namespace Bwlab\SyliusWishlistPlugin\Twig;
 use Bwlab\SyliusWishlistPlugin\Destination\DestinationMenu;
 use Bwlab\SyliusWishlistPlugin\Resolver\CurrentWishlistResolverInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Contracts\Service\ResetInterface;
 use Twig\Attribute\AsTwigFunction;
 
-final class DestinationExtension
+final class DestinationExtension implements ResetInterface
 {
     /** @var list<array{id: int, name: string, selected: bool}>|null */
     private ?array $menu = null;
@@ -29,6 +30,11 @@ final class DestinationExtension
     public function destinations(): array
     {
         return $this->menu ??= $this->load();
+    }
+
+    public function reset(): void
+    {
+        $this->menu = null;
     }
 
     /** @return list<array{id: int, name: string, selected: bool}> */
