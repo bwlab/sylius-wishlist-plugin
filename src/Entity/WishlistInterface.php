@@ -47,6 +47,22 @@ interface WishlistInterface extends ResourceInterface, TimestampableInterface
 
     public function setToken(string $token): void;
 
+    /** Secret of the public read-only link (64 hex chars), or null when the link is off. */
+    public function getShareToken(): ?string;
+
+    public function getSharedAt(): ?\DateTimeImmutable;
+
+    public function isShared(): bool;
+
+    /** Turns the link on (new random token) unless it is already on. */
+    public function enableSharing(): void;
+
+    /** New random token: the old link stops working. Turns the link on. */
+    public function renewShareToken(): void;
+
+    /** Link off and token forgotten: turning it on again gives a different link. */
+    public function disableSharing(): void;
+
     public function getLocaleCode(): ?string;
 
     public function setLocaleCode(?string $localeCode): void;

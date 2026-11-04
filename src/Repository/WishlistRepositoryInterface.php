@@ -34,4 +34,7 @@ interface WishlistRepositoryInterface extends RepositoryInterface
 
     /** Total number of rows over all lists of the customer. */
     public function countItemsByCustomer(CustomerInterface $customer): int;
+
+    /** The list whose public link has this token (null: unknown or link off). Channel and owner checks are the caller's. */
+    public function findOneByShareToken(string $shareToken): ?WishlistInterface;
 }
