@@ -70,7 +70,7 @@ Released migrations are never modified: upgrades keep existing wishlists, no dat
 Unit tests (from the shop where the plugin is installed):
 
 ```bash
-vendor/bin/phpunit --bootstrap vendor/autoload.php plugins/sylius-wishlist-plugin/tests/Unit
+vendor/bin/phpunit -c plugins/sylius-wishlist-plugin/phpunit.xml.dist
 ```
 
 Plugin conventions (where to add services, routes, translations, Twig hooks): [docs/architettura.md](docs/architettura.md).
