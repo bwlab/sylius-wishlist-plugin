@@ -88,6 +88,7 @@ final class CurrentWishlistResolver implements CurrentWishlistResolverInterface
 
     public function findAll(): array
     {
+        $this->find(); // marks the owner as seen (guest purge) even when only the lists pages or the API are used
         /** @var ChannelInterface $channel */
         $channel = $this->channelContext->getChannel();
         $customer = $this->customerContext->getCustomer();

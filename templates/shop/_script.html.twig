@@ -86,8 +86,12 @@
 
     // Saves through fetch; a network or server failure falls back to the normal form post (which also shows the flash message).
     // A refusal with a message (for instance a bad list name) is shown here and not retried.
+    // One save at a time on the page: two parallel first saves of a guest would create two owners (two cookies).
+    var saving = false;
+
     function save(button, url, data, fallback) {
-        if (!setBusy(button, button.dataset.savingLabel || '')) { return; }
+        if (saving || !setBusy(button, button.dataset.savingLabel || '')) { return; }
+        saving = true;
         var scope = button.closest('[data-bwlab-wishlist-box]');
         fetch(url, {
             method: 'POST',
@@ -118,7 +122,7 @@
                 syncDestination(scope, result.list);
                 button.dataset.bwSavedList = String(result.list.id);
             }
-        }).catch(function (error) {
+        }).finally(function () { saving = false; }).catch(function (error) {
             setIdle(button);
             if (error && error.wishlistRefusal && error.wishlistRefusal.message) {
                 toast('error', error.wishlistRefusal.message);

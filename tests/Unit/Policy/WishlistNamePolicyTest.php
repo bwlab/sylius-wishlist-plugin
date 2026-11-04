@@ -32,6 +32,16 @@ final class WishlistNamePolicyTest extends TestCase
     }
 
     #[Test]
+    public function it_rejects_a_name_whose_lowercase_form_is_longer_than_the_column(): void
+    {
+        // mb_strtolower("İ") is two characters: 40 of them fit the name limit but not the canonical column.
+        self::assertSame(
+            WishlistNameException::TOO_LONG,
+            self::errorOf(static fn () => WishlistNamePolicy::check(str_repeat("\u{130}", 40), [])),
+        );
+    }
+
+    #[Test]
     public function it_trims_and_accepts_a_valid_name(): void
     {
         self::assertSame('Birthday', WishlistNamePolicy::check('  Birthday ', [self::list('My Favorites')]));

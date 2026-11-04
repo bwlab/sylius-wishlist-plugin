@@ -30,6 +30,9 @@ final class WishlistNamePolicy
         }
 
         $canonical = Wishlist::canonicalize($name);
+        if (mb_strlen($canonical) > WishlistInterface::NAME_MAX_LENGTH) {
+            throw new WishlistNameException(WishlistNameException::TOO_LONG, ['%limit%' => WishlistInterface::NAME_MAX_LENGTH]);
+        }
         $count = 0;
         foreach ($ownerLists as $list) {
             ++$count;

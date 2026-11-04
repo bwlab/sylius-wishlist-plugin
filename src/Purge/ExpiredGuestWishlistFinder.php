@@ -24,7 +24,7 @@ final class ExpiredGuestWishlistFinder implements ExpiredGuestWishlistFinderInte
             ->andWhere('o.channel = :channel')
             ->andWhere('o.customer IS NULL')
             ->groupBy('o.token')
-            ->having('MAX(COALESCE(o.lastSeenAt, o.createdAt)) < :cutoff')
+            ->having('MAX(COALESCE(o.lastSeenAt, o.createdAt)) < :cutoff AND MAX(COALESCE(o.updatedAt, o.createdAt)) < :cutoff')
             ->setParameter('channel', $channel)
             ->setParameter('cutoff', $cutoff)
             ->getQuery()
