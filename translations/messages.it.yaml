@@ -23,3 +23,13 @@ bwlab_wishlist:
             select_item: Seleziona questo prodotto
             choose_variant: Scegli le opzioni
             choose_variant_hint: Scegli prima le opzioni del prodotto, poi salvalo.
+        admin:
+            menu:
+                wishlist: Wishlist
+                settings: Impostazioni
+            settings:
+                title: Impostazioni wishlist
+                intro: Impostazioni per ogni canale. Lascia vuoto un campo per usare il valore predefinito.
+                guest_lifetime_days: Durata wishlist visitatore (giorni)
+                guest_lifetime_days_help: Giorni di conservazione della wishlist del visitatore dopo l'ultima visita. Vuoto = predefinito (%days% giorni).
+                save: Salva

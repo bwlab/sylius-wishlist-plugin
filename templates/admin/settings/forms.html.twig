@@ -1,0 +1,23 @@
+{% set channel_forms = hookable_metadata.context.channel_forms %}
+
+<div class="container-xl">
+    <p class="text-secondary">{{ 'bwlab_wishlist.ui.admin.settings.intro'|trans }}</p>
+
+    {% for item in channel_forms %}
+        {% form_theme item.form '@SyliusAdmin/shared/form_theme.html.twig' %}
+        <div class="card mb-3" data-test-channel="{{ item.channel.code }}">
+            {{ form_start(item.form, {attr: {novalidate: 'novalidate'}}) }}
+            <div class="card-header">
+                <h3 class="card-title">{{ item.channel.name }} <span class="text-secondary">({{ item.channel.code }})</span></h3>
+            </div>
+            <div class="card-body">
+                {{ form_errors(item.form) }}
+                {{ form_row(item.form.guestLifetimeDays) }}
+            </div>
+            <div class="card-footer text-end">
+                <button type="submit" class="btn btn-primary">{{ 'bwlab_wishlist.ui.admin.settings.save'|trans }}</button>
+            </div>
+            {{ form_end(item.form) }}
+        </div>
+    {% endfor %}
+</div>

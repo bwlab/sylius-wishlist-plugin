@@ -23,7 +23,7 @@ Gli 11 scenari del cliente (WL-01…11) più le decisioni prese nel brainstormin
 
 1. Salvare dalla pagina prodotto (PDP) e dalla lista prodotti (PLP), con messaggio di conferma, senza doppioni.
 2. Wishlist del visitatore (stesso browser, sopravvive al refresh) e del cliente registrato (sopravvive a logout/login).
-3. **Unione** della wishlist del visitatore in quella dell'account all'accesso e alla registrazione (PA-02).
+3. **Unione** della wishlist del visitatore in quella dell'account al primo accesso, anche dopo la registrazione (PA-02, vedi §12).
 4. **Una wishlist per canale** (PA-04).
 5. Pagina wishlist: nome, immagine, prezzo attuale (del canale), togliere, wishlist vuota con "continua gli acquisti".
 6. **Quantità desiderata** per riga, default 1, modificabile (PA-08).
@@ -101,7 +101,7 @@ Tutte registrate come risorse Sylius dove serve (factory/repository), create con
   durata = `guestLifetimeDays` del canale, rinnovata a ogni visita. Wishlist risolta da (token, canale corrente).
   La wishlist si crea solo al primo salvataggio (niente righe vuote per ogni visitatore).
 - **Cliente registrato**: wishlist risolta da (customer, canale corrente).
-- **Unione**: all'evento di login del firewall `shop` e dopo la registrazione con accesso automatico. Le righe del visitatore
+- **Unione**: all'evento di login del firewall `shop` (anche il primo accesso dopo la registrazione, vedi §12). Le righe del visitatore
   passano all'account; variante già presente → una riga sola con la quantità maggiore (scelta del team). La wishlist del visitatore
   si elimina, il cookie si cancella.
 - **Doppioni**: aggiungere una variante già presente non crea righe; mostra comunque la conferma ("già nella wishlist").
@@ -153,10 +153,11 @@ Scenari da provare sul browser (e via API dove indicato), con esito riportato ne
 
 - **Testi del cliente**: copiati in `docs/requisiti/` (fase 1 con scenari e criteri di accettazione; regole dell'hackathon).
   Sono la fonte per il collaudo: in caso di dubbio vale il testo del cliente.
-- **Unione alla registrazione**: entrambi i canali del negozio di prova chiedono la verifica dell'email
-  (`account_verification_required = 1`, verificato), quindi non c'è accesso automatico. La wishlist del visitatore si lega al
-  nuovo cliente **al momento della registrazione** (stessa regola dell'unione); al primo accesso vale l'unione normale.
-  La configurazione del negozio non si cambia.
+- **Unione alla registrazione** (corretta dopo la revisione di sicurezza, 4/11): alla registrazione NON si lega nulla.
+  Sylius riusa un cliente già esistente da ospite con la stessa email, quindi legare la wishlist in quel momento la
+  sposterebbe sull'account di un'altra persona prima della verifica dell'email. La wishlist del visitatore resta nel suo
+  cookie e si unisce al **primo accesso** (`security.interactive_login`, che scatta anche nell'accesso automatico quando la
+  verifica è disattivata). Se l'unione fallisce, l'accesso non si blocca e il cookie resta.
 - **WL-12 installazione**: si prova seguendo il README da zero sul negozio di prova, che non ha il plugin installato.
   Nessun secondo negozio, nessun reset del database.
 

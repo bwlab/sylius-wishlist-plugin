@@ -23,3 +23,13 @@ bwlab_wishlist:
             select_item: Select this product
             choose_variant: Choose options
             choose_variant_hint: Select the product options first, then save it.
+        admin:
+            menu:
+                wishlist: Wishlist
+                settings: Settings
+            settings:
+                title: Wishlist settings
+                intro: Settings for each channel. Leave a field empty to use the default value.
+                guest_lifetime_days: Guest wishlist lifetime (days)
+                guest_lifetime_days_help: Days a guest wishlist is kept after the last visit. Empty = default (%days% days).
+                save: Save

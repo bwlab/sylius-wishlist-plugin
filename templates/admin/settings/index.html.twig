@@ -1,0 +1,7 @@
+{% extends '@SyliusAdmin/shared/layout/base.html.twig' %}
+
+{% block title %}{{ 'bwlab_wishlist.ui.admin.settings.title'|trans }} | {{ parent() }}{% endblock %}
+
+{% block body %}
+    {% hook 'bwlab_wishlist.admin.settings.index' with { channel_forms } %}
+{% endblock %}

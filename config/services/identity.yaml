@@ -1,6 +1,9 @@
-# identity services of the wishlist plugin. Service ids: bwlab_wishlist.identity.<name>.
+# identity services of the wishlist plugin: classes in src/Identity, wired by attributes.
 services:
     _defaults:
         autowire: true
         autoconfigure: true
         public: false
+
+    Bwlab\SyliusWishlistPlugin\Identity\:
+        resource: '../../src/Identity/'
