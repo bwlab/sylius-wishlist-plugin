@@ -120,7 +120,7 @@ Cron (every night at 03:30):
 
 **Gift**: POST + CSRF adds the variant (desired quantity) to the **visitor's own cart**, with the same service and validation as «Add to cart» on the wishlist page, then redirects to the cart with «Added the gift for <name>». The friend pays and types the delivery address in the standard checkout; the owner's address is never used.
 
-**Already gifted**: the friend's session remembers the gift rows put in the cart. When the order is completed (event `sylius.order.post_complete`, the one Sylius uses for the confirmation email), those rows get a mark (`bwlab_wishlist_gift`: row id + date) and the public page shows «Already gifted» instead of the button. Nobody is recorded: the owner does not see who gave what. Limits: the mark needs the session of the checkout (orders completed through the headless API, or in another browser than the one that added the gift, are not marked).
+**Already gifted**: NOT active in 0.3.0. The code (`src/Gift`, table `bwlab_wishlist_gift`) is in place but the listener is not registered: a security review showed that marking at order confirmation happens before payment, so an unpaid order would block a gift for good. It will be enabled once the mark is set only when the order is paid and removed when it is cancelled, and compares the ordered quantity.
 
 **Privacy**: the plugin logs no token or full link; the web server access log still contains the URL path, as for any link.
 

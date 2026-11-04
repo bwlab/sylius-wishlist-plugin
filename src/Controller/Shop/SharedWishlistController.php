@@ -152,5 +152,7 @@ final class SharedWishlistController extends AbstractController
         $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
         $response->headers->set('Referrer-Policy', 'no-referrer');
         $response->headers->set('Cache-Control', 'no-store, private');
+        // The shop layout may carry third-party scripts (payment plugins): they must never run on a page whose URL is a secret.
+        $response->headers->set('Content-Security-Policy', "script-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'self'");
     }
 }

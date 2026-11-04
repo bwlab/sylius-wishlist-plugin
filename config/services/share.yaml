@@ -13,4 +13,5 @@ services:
         resource: '../../src/Gift/'
         exclude: '../../src/Gift/{GiftSelector,GiftSession}.php'
 
-    Bwlab\SyliusWishlistPlugin\EventListener\GiftOrderListener: ~
+    # «Already gifted» marker: listener NOT registered in 0.3.0 (security review: the mark would be set at order confirmation, before payment).
+    # Bwlab\SyliusWishlistPlugin\EventListener\GiftOrderListener: ~
