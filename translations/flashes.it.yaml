@@ -2,14 +2,11 @@ bwlab_wishlist:
     item_added: Il prodotto è stato aggiunto alla wishlist.
     item_already_present: Il prodotto è già nella wishlist.
     item_removed: Il prodotto è stato tolto dalla wishlist.
-<<<<<<< HEAD
     variant_not_found: Questo prodotto non può essere aggiunto alla wishlist.
     invalid_request: La richiesta non è valida o è scaduta. Riprova.
     quantity_changed: La quantità è stata aggiornata.
     nothing_to_add: Non c'è nulla da aggiungere al carrello.
     cart_added: '{1} Un prodotto è stato aggiunto al carrello.|]1,Inf[ %count% prodotti sono stati aggiunti al carrello.'
     cart_item_failed: '"%name%" non è stato aggiunto al carrello: %reason%'
-=======
     admin:
         settings_saved: Impostazioni wishlist salvate.
->>>>>>> develop
