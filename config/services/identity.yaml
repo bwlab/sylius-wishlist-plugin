@@ -1,0 +1,6 @@
+# identity services of the wishlist plugin. Service ids: bwlab_wishlist.identity.<name>.
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false

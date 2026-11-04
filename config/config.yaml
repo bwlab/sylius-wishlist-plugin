@@ -1,0 +1,26 @@
+imports:
+    - { resource: "twig_hooks/**/*.yaml" }
+
+sylius_resource:
+    resources:
+        bwlab_wishlist.wishlist:
+            driver: doctrine/orm
+            classes:
+                model: Bwlab\SyliusWishlistPlugin\Entity\Wishlist
+                interface: Bwlab\SyliusWishlistPlugin\Entity\WishlistInterface
+                repository: Bwlab\SyliusWishlistPlugin\Repository\WishlistRepository
+        bwlab_wishlist.wishlist_item:
+            driver: doctrine/orm
+            classes:
+                model: Bwlab\SyliusWishlistPlugin\Entity\WishlistItem
+                interface: Bwlab\SyliusWishlistPlugin\Entity\WishlistItemInterface
+        bwlab_wishlist.channel_settings:
+            driver: doctrine/orm
+            classes:
+                model: Bwlab\SyliusWishlistPlugin\Entity\WishlistChannelSettings
+                interface: Bwlab\SyliusWishlistPlugin\Entity\WishlistChannelSettingsInterface
+        bwlab_wishlist.purge_stat:
+            driver: doctrine/orm
+            classes:
+                model: Bwlab\SyliusWishlistPlugin\Entity\WishlistPurgeStat
+                interface: Bwlab\SyliusWishlistPlugin\Entity\WishlistPurgeStatInterface

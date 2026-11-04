@@ -1,0 +1,6 @@
+# api services of the wishlist plugin. Service ids: bwlab_wishlist.api.<name>.
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false

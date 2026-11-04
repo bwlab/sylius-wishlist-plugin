@@ -1,0 +1,3 @@
+# Twig hooks (shop). Hook names: verify with vendor/bin/mate tools:call sylius_hooks_find_for_template.
+sylius_twig_hooks:
+    hooks: {}

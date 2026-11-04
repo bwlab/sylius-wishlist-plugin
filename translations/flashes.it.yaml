@@ -1,0 +1,4 @@
+bwlab_wishlist:
+    item_added: Il prodotto è stato aggiunto alla wishlist.
+    item_already_present: Il prodotto è già nella wishlist.
+    item_removed: Il prodotto è stato tolto dalla wishlist.

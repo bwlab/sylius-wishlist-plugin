@@ -1,0 +1,11 @@
+bwlab_wishlist:
+    ui:
+        wishlist: Wishlist
+        add_to_wishlist: Aggiungi alla wishlist
+        remove: Togli
+        empty: La tua wishlist è vuota.
+        continue_shopping: Continua gli acquisti
+        availability:
+            available: Disponibile
+            out_of_stock: Esaurito
+            unavailable: Non più disponibile
