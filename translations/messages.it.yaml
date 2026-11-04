@@ -26,6 +26,26 @@ bwlab_wishlist:
             saved: Nella wishlist
             adding_to_cart: Aggiunta al carrello…
             choose_variant_hint: Scegli prima le opzioni del prodotto, poi salvalo.
+            default_list_name: I miei preferiti
+            lists:
+                title: Le mie wishlist
+                my_lists: 'Le mie liste (%count%)'
+                new_list: Nuova lista
+                back: Tutte le mie liste
+                name: Nome della lista
+                name_hint: 'Fino a %limit% caratteri, puoi avere al massimo %max% liste.'
+                create: Crea lista
+                default: Predefinita
+                products: '{0} Nessun prodotto|{1} Un prodotto|]1,Inf[ %count% prodotti'
+                rename: Rinomina
+                rename_title: Rinomina la lista
+                rename_submit: Salva il nome
+                cancel: Annulla
+                delete: Elimina
+                delete_title: Elimina la lista
+                delete_confirm: 'Stai per eliminare la lista "%name%" e tutto ciò che contiene (%products%). I prodotti nelle altre liste e nel negozio non vengono toccati. L''operazione non si può annullare.'
+                delete_submit: Sì, elimina la lista
+                move_to: Sposta in…
         admin:
             menu:
                 wishlist: Wishlist

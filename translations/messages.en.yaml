@@ -26,6 +26,26 @@ bwlab_wishlist:
             saved: In wishlist
             adding_to_cart: Adding to cart…
             choose_variant_hint: Select the product options first, then save it.
+            default_list_name: My Favorites
+            lists:
+                title: My wishlists
+                my_lists: 'My lists (%count%)'
+                new_list: New list
+                back: All my lists
+                name: List name
+                name_hint: 'Up to %limit% characters, you can have up to %max% lists.'
+                create: Create list
+                default: Default
+                products: '{0} No products|{1} One product|]1,Inf[ %count% products'
+                rename: Rename
+                rename_title: Rename list
+                rename_submit: Save name
+                cancel: Cancel
+                delete: Delete
+                delete_title: Delete list
+                delete_confirm: 'You are about to delete the list "%name%" and everything saved in it (%products%). Products in your other lists and in the shop are not affected. This cannot be undone.'
+                delete_submit: Yes, delete the list
+                move_to: Move to…
         admin:
             menu:
                 wishlist: Wishlist
