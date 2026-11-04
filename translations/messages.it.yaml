@@ -62,3 +62,20 @@ bwlab_wishlist:
                 guest_lifetime_days: Durata wishlist visitatore (giorni)
                 guest_lifetime_days_help: Giorni di conservazione della wishlist del visitatore dopo l'ultima visita. Vuoto = predefinito (%days% giorni).
                 save: Salva
+            customer:
+                title: Wishlist
+                none: Nessuna wishlist
+                default_name: I miei preferiti
+                products_count: '%count% prodotto|%count% prodotti'
+                created_at: Creata il
+                updated_at: Ultimo aggiornamento
+                empty_list: Nessun prodotto in questa lista.
+                product: Prodotto
+                quantity: Quantità
+                added_at: Inserito il
+                source: Salvato da
+                availability: Disponibilità
+                source_pdp: Pagina prodotto
+                source_plp: Lista prodotti
+                source_api: API
+                grid_column: Prodotti in wishlist

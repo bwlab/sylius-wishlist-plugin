@@ -33,4 +33,29 @@ class WishlistRepository extends EntityRepository implements WishlistRepositoryI
     {
         return array_values($this->findBy(['token' => $token, 'channel' => $channel, 'customer' => null], self::ORDER));
     }
+
+    public function findAllWithItemsByCustomer(CustomerInterface $customer): array
+    {
+        return array_values($this->createQueryBuilder('w')
+            ->addSelect('c', 'i', 'v', 'vt', 'p', 'pt', 'pc', 'pi')
+            ->innerJoin('w.channel', 'c')
+            ->leftJoin('w.items', 'i')
+            ->leftJoin('i.variant', 'v')
+            ->leftJoin('v.translations', 'vt')
+            ->leftJoin('v.product', 'p')
+            ->leftJoin('p.translations', 'pt')
+            ->leftJoin('p.channels', 'pc')
+            ->leftJoin('p.images', 'pi')
+            ->andWhere('w.customer = :customer')
+            ->setParameter('customer', $customer)
+            ->getQuery()
+            ->getResult());
+    }
+
+    public function countItemsByCustomer(CustomerInterface $customer): int
+    {
+        return (int) $this->getEntityManager()->createQuery(
+            'SELECT COUNT(i.id) FROM ' . \Bwlab\SyliusWishlistPlugin\Entity\WishlistItemInterface::class . ' i JOIN i.wishlist w WHERE w.customer = :customer',
+        )->setParameter('customer', $customer)->getSingleScalarResult();
+    }
 }
