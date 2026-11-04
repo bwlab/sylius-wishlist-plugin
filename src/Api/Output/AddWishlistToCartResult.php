@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Bwlab\SyliusWishlistPlugin\Api\Output;
 
+use Symfony\Component\Serializer\Attribute\Groups;
+
 /** Not an API resource. The rows stay in the wishlist. */
 final class AddWishlistToCartResult
 {
@@ -13,8 +15,11 @@ final class AddWishlistToCartResult
      *        reason: out_of_stock | unavailable | rejected | not_in_wishlist
      */
     public function __construct(
+        #[Groups(['bwlab_wishlist:shop'])]
         public string $orderTokenValue,
+        #[Groups(['bwlab_wishlist:shop'])]
         public array $added,
+        #[Groups(['bwlab_wishlist:shop'])]
         public array $skipped,
     ) {
     }
