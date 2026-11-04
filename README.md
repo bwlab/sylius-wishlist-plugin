@@ -1,7 +1,11 @@
 # Bwlab Sylius Wishlist Plugin
 
-Wishlist for Sylius 2.3: guest (browser cookie) and customer wishlists, one per channel,
-availability status, merchant data (added at, source page, last visit locale, quantity).
+A wishlist for Sylius 2.3 that helps shoppers come back and buy. Visitors and logged-in customers can save products, and the wishlist is merged into the customer account at login, so nothing is lost.
+
+- **One wishlist per channel**, with its own guest retention time, set in the admin panel.
+- **Cart that follows Sylius rules**: stock, availability and cart validation apply; products that cannot be bought are skipped and explained.
+- **Complete shop API** (admin API is read-only), to connect apps and marketing tools.
+- **Data recorded from day one** (added at, source page, locale, quantity), so you can measure conversions later.
 
 Requirements: PHP ^8.2, Sylius ^2.3.
 

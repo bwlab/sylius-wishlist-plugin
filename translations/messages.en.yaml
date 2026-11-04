@@ -3,7 +3,7 @@ bwlab_wishlist:
         wishlist: Wishlist
         add_to_wishlist: Add to wishlist
         remove: Remove
-        empty: Your wishlist is empty.
+        empty: Your wishlist is empty. Save the products you like and find them here.
         continue_shopping: Continue shopping
         availability:
             available: Available
@@ -15,14 +15,14 @@ bwlab_wishlist:
             product: Product
             price: Price
             quantity: Quantity
-            status: Status
-            update_quantity: Update
+            status: Availability
+            update_quantity: Update quantity
             add_to_cart: Add to cart
             add_selected: Add selected to cart
             add_all_available: Add all available to cart
             select_item: Select this product
             choose_variant: Choose options
-            choose_variant_hint: Select the product options first, then save it.
+            choose_variant_hint: Choose the product options, then add it to your wishlist.
         admin:
             menu:
                 wishlist: Wishlist
