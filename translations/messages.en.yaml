@@ -23,6 +23,35 @@ bwlab_wishlist:
             select_item: Select this product
             choose_variant: Choose options
             choose_variant_hint: Choose the product options, then add it to your wishlist.
+            saving: Saving…
+            saved: In wishlist
+            adding_to_cart: Adding to cart…
+            default_list_name: My Favorites
+            lists:
+                title: My wishlists
+                my_lists: 'My lists (%count%)'
+                new_list: New list
+                back: All my lists
+                name: List name
+                name_hint: 'Up to %limit% characters, you can have up to %max% lists.'
+                create: Create list
+                default: Default
+                products: '{0} No products|{1} One product|]1,Inf[ %count% products'
+                rename: Rename
+                rename_title: Rename list
+                rename_submit: Save name
+                cancel: Cancel
+                delete: Delete
+                delete_title: Delete list
+                delete_confirm: 'You are about to delete the list "%name%" and everything saved in it (%products%). Products in your other lists and in the shop are not affected. This cannot be undone.'
+                delete_submit: Yes, delete the list
+                move_to: Move to…
+            destination:
+                label: Choose the list
+                default_name: My Favorites
+                new_list: New list…
+                new_name_label: Name of the new list
+                new_name_placeholder: List name
         admin:
             menu:
                 wishlist: Wishlist
@@ -33,3 +62,20 @@ bwlab_wishlist:
                 guest_lifetime_days: Guest wishlist lifetime (days)
                 guest_lifetime_days_help: Days a guest wishlist is kept after the last visit. Empty = default (%days% days).
                 save: Save
+            customer:
+                title: Wishlist
+                none: No wishlist
+                default_name: My Favorites
+                products_count: '%count% product|%count% products'
+                created_at: Created
+                updated_at: Last update
+                empty_list: No products in this list.
+                product: Product
+                quantity: Quantity
+                added_at: Added on
+                source: Saved from
+                availability: Availability
+                source_pdp: Product page
+                source_plp: Product list
+                source_api: API
+                grid_column: Wishlist products

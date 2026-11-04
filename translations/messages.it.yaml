@@ -23,6 +23,35 @@ bwlab_wishlist:
             select_item: Seleziona questo prodotto
             choose_variant: Scegli le opzioni
             choose_variant_hint: Scegli le opzioni del prodotto, poi aggiungilo alla wishlist.
+            saving: Salvataggio…
+            saved: Nella wishlist
+            adding_to_cart: Aggiunta al carrello…
+            default_list_name: I miei preferiti
+            lists:
+                title: Le mie wishlist
+                my_lists: 'Le mie liste (%count%)'
+                new_list: Nuova lista
+                back: Tutte le mie liste
+                name: Nome della lista
+                name_hint: 'Fino a %limit% caratteri, puoi avere al massimo %max% liste.'
+                create: Crea lista
+                default: Predefinita
+                products: '{0} Nessun prodotto|{1} Un prodotto|]1,Inf[ %count% prodotti'
+                rename: Rinomina
+                rename_title: Rinomina la lista
+                rename_submit: Salva il nome
+                cancel: Annulla
+                delete: Elimina
+                delete_title: Elimina la lista
+                delete_confirm: 'Stai per eliminare la lista "%name%" e tutto ciò che contiene (%products%). I prodotti nelle altre liste e nel negozio non vengono toccati. L''operazione non si può annullare.'
+                delete_submit: Sì, elimina la lista
+                move_to: Sposta in…
+            destination:
+                label: Scegli la lista
+                default_name: I miei preferiti
+                new_list: Nuova lista…
+                new_name_label: Nome della nuova lista
+                new_name_placeholder: Nome della lista
         admin:
             menu:
                 wishlist: Wishlist
@@ -33,3 +62,20 @@ bwlab_wishlist:
                 guest_lifetime_days: Durata wishlist ospiti (giorni)
                 guest_lifetime_days_help: Giorni di conservazione della wishlist di un ospite dopo l'ultima visita. Vuoto = predefinito (%days% giorni).
                 save: Salva
+            customer:
+                title: Wishlist
+                none: Nessuna wishlist
+                default_name: I miei preferiti
+                products_count: '%count% prodotto|%count% prodotti'
+                created_at: Creata il
+                updated_at: Ultimo aggiornamento
+                empty_list: Nessun prodotto in questa lista.
+                product: Prodotto
+                quantity: Quantità
+                added_at: Inserito il
+                source: Salvato da
+                availability: Disponibilità
+                source_pdp: Pagina prodotto
+                source_plp: Lista prodotti
+                source_api: API
+                grid_column: Prodotti in wishlist

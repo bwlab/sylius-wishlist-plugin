@@ -10,15 +10,26 @@
     {% set purchasable_count = rows|filter(r => r.availability.purchasable)|length %}
 
     <div class="container mt-5 mb-5" data-test-bwlab-wishlist-page>
-        <h1 class="h2 mb-4">{{ 'bwlab_wishlist.ui.shop.title'|trans }}</h1>
+        {% set list_count = lists|length %}
+        {% if single %}
+            <p class="small mb-2" data-test-bwlab-wishlist-lists-link>
+                <a class="link-secondary" href="{{ path('bwlab_wishlist_shop_lists') }}">{{ 'bwlab_wishlist.ui.shop.lists.my_lists'|trans({'%count%': list_count}) }}</a>
+                · <a class="link-secondary" href="{{ path('bwlab_wishlist_shop_lists') }}#bwlab-new-list">{{ 'bwlab_wishlist.ui.shop.lists.new_list'|trans }}</a>
+            </p>
+            <h1 class="h2 mb-4">{{ 'bwlab_wishlist.ui.shop.title'|trans }}</h1>
+        {% else %}
+            <p class="small mb-2"><a class="link-secondary" href="{{ path('bwlab_wishlist_shop_lists') }}">&larr; {{ 'bwlab_wishlist.ui.shop.lists.back'|trans }}</a></p>
+            <h1 class="h2 mb-4" data-test-bwlab-wishlist-title>{{ bwlab_wishlist_list_name(list) }}</h1>
+        {% endif %}
 
         {% if rows is empty %}
             <div class="alert alert-info" data-test-bwlab-wishlist-empty>{{ 'bwlab_wishlist.ui.empty'|trans }}</div>
             <a class="btn btn-primary" href="{{ path('sylius_shop_homepage') }}">{{ 'bwlab_wishlist.ui.continue_shopping'|trans }}</a>
         {% else %}
-            <form id="bwlab-wishlist-bulk" action="{{ path('bwlab_wishlist_shop_cart_selected') }}" method="post">
+            <form id="bwlab-wishlist-bulk" action="{{ path('bwlab_wishlist_shop_cart_selected') }}" method="post" data-bwlab-busy="{{ 'bwlab_wishlist.ui.shop.adding_to_cart'|trans }}">
                 <input type="hidden" name="_token" value="{{ token }}">
                 <input type="hidden" name="returnTo" value="{{ return_to }}">
+                {% if list is not null %}<input type="hidden" name="list" value="{{ list.id }}">{% endif %}
             </form>
 
             <div class="table-responsive">
@@ -57,7 +68,7 @@
                             </td>
                             <td>{{ money.calculatePrice(variant) }}</td>
                             <td>
-                                <form action="{{ path('bwlab_wishlist_shop_quantity', {id: item.id}) }}" method="post" class="d-flex gap-1">
+                                <form action="{{ path('bwlab_wishlist_shop_quantity', {id: item.id}) }}" method="post" class="d-flex gap-1" data-bwlab-busy="{{ 'bwlab_wishlist.ui.shop.saving'|trans }}">
                                     <input type="hidden" name="_token" value="{{ token }}">
                                     <input type="hidden" name="returnTo" value="{{ return_to }}">
                                     <input class="form-control form-control-sm" style="width: 5rem;" type="number" name="quantity" min="1" max="9999" value="{{ item.quantity }}" aria-label="{{ 'bwlab_wishlist.ui.shop.quantity'|trans }}">
@@ -73,17 +84,30 @@
                             </td>
                             <td class="text-end">
                                 <div class="d-flex gap-1 justify-content-end">
-                                    <form action="{{ path('bwlab_wishlist_shop_cart_item', {id: item.id}) }}" method="post">
+                                    <form action="{{ path('bwlab_wishlist_shop_cart_item', {id: item.id}) }}" method="post" data-bwlab-busy="{{ 'bwlab_wishlist.ui.shop.adding_to_cart'|trans }}">
                                         <input type="hidden" name="_token" value="{{ token }}">
                                         <input type="hidden" name="returnTo" value="{{ return_to }}">
                                         <button type="submit" class="btn btn-sm btn-primary" data-test-bwlab-wishlist-cart-item {% if not row.availability.purchasable %}disabled="disabled"{% endif %}>{{ 'bwlab_wishlist.ui.shop.add_to_cart'|trans }}</button>
                                     </form>
-                                    <form action="{{ path('bwlab_wishlist_shop_remove', {id: item.id}) }}" method="post">
+                                    <form action="{{ path('bwlab_wishlist_shop_remove', {id: item.id}) }}" method="post" data-bwlab-busy="{{ 'bwlab_wishlist.ui.shop.saving'|trans }}">
                                         <input type="hidden" name="_token" value="{{ token }}">
                                         <input type="hidden" name="returnTo" value="{{ return_to }}">
                                         <button type="submit" class="btn btn-sm btn-outline-danger" data-test-bwlab-wishlist-remove>{{ 'bwlab_wishlist.ui.remove'|trans }}</button>
                                     </form>
                                 </div>
+                                {% set targets = lists|filter(l => l.id != list.id) %}
+                                {% if targets|length > 0 %}
+                                    <form action="{{ path('bwlab_wishlist_shop_move', {id: item.id}) }}" method="post" class="d-flex gap-1 mt-1 justify-content-end" data-bwlab-busy="{{ 'bwlab_wishlist.ui.shop.saving'|trans }}" data-test-bwlab-wishlist-move>
+                                        <input type="hidden" name="_token" value="{{ token }}">
+                                        <input type="hidden" name="returnTo" value="{{ return_to }}">
+                                        <select class="form-select form-select-sm" style="width: auto;" name="target" aria-label="{{ 'bwlab_wishlist.ui.shop.lists.move_to'|trans }}">
+                                            {% for target in targets %}
+                                                <option value="{{ target.id }}">{{ bwlab_wishlist_list_name(target) }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary">{{ 'bwlab_wishlist.ui.shop.lists.move_to'|trans }}</button>
+                                    </form>
+                                {% endif %}
                             </td>
                         </tr>
                     {% endfor %}
@@ -93,9 +117,10 @@
 
             <div class="d-flex flex-wrap gap-2 mt-3">
                 <button type="submit" form="bwlab-wishlist-bulk" class="btn btn-primary" data-test-bwlab-wishlist-cart-selected>{{ 'bwlab_wishlist.ui.shop.add_selected'|trans }}</button>
-                <form action="{{ path('bwlab_wishlist_shop_cart_all') }}" method="post">
+                <form action="{{ path('bwlab_wishlist_shop_cart_all') }}" method="post" data-bwlab-busy="{{ 'bwlab_wishlist.ui.shop.adding_to_cart'|trans }}">
                     <input type="hidden" name="_token" value="{{ token }}">
                     <input type="hidden" name="returnTo" value="{{ return_to }}">
+                    {% if list is not null %}<input type="hidden" name="list" value="{{ list.id }}">{% endif %}
                     <button type="submit" class="btn btn-outline-primary" data-test-bwlab-wishlist-cart-all {% if purchasable_count == 0 %}disabled="disabled"{% endif %}>{{ 'bwlab_wishlist.ui.shop.add_all_available'|trans }}</button>
                 </form>
                 <a class="btn btn-link" href="{{ path('sylius_shop_homepage') }}">{{ 'bwlab_wishlist.ui.continue_shopping'|trans }}</a>

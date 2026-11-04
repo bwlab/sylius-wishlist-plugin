@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-/** Attaches the guest wishlist of the current browser (own cookie, current channel only) to a customer. */
+/** Attaches all guest lists of the current browser (own cookie, current channel only) to a customer. */
 final class GuestWishlistClaimer
 {
     public const CLEAR_COOKIE_ATTRIBUTE = '_bwlab_wishlist_clear_cookie';
@@ -46,17 +46,19 @@ final class GuestWishlistClaimer
             return;
         }
 
-        $guest = $this->wishlistRepository->findOneGuestByTokenAndChannel($token, $channel);
-        if (null === $guest) {
+        $guestLists = $this->wishlistRepository->findAllGuestByTokenAndChannel($token, $channel);
+        if ([] === $guestLists) {
             return;
         }
 
-        // A failed merge (e.g. unique customer+channel hit by another tab) must never block the login: keep the cookie, retry next login.
+        // A failed merge (e.g. unique name hit by another tab) must never block the login: keep the cookie, retry next login.
         try {
-            $survivor = $this->merger->merge($guest, $this->wishlistRepository->findOneByCustomerAndChannel($customer, $channel), $customer);
-            $this->wishlistRepository->add($survivor);
-            if ($survivor !== $guest) {
-                $this->wishlistRepository->remove($guest);
+            $result = $this->merger->mergeAll($guestLists, $this->wishlistRepository->findAllByCustomerAndChannel($customer, $channel), $customer);
+            foreach ($result['save'] as $wishlist) {
+                $this->wishlistRepository->add($wishlist);
+            }
+            foreach ($result['delete'] as $wishlist) {
+                $this->wishlistRepository->remove($wishlist);
             }
         } catch (\Throwable $e) {
             $this->logger?->error('Wishlist merge failed at login.', ['exception' => $e]);

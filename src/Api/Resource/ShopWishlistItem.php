@@ -11,8 +11,10 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use Bwlab\SyliusWishlistPlugin\Api\Input\AddWishlistItem;
 use Bwlab\SyliusWishlistPlugin\Api\Input\ChangeWishlistItemQuantity;
+use Bwlab\SyliusWishlistPlugin\Api\Input\MoveWishlistItem;
 use Bwlab\SyliusWishlistPlugin\Api\Processor\AddWishlistItemProcessor;
 use Bwlab\SyliusWishlistPlugin\Api\Processor\ChangeWishlistItemQuantityProcessor;
+use Bwlab\SyliusWishlistPlugin\Api\Processor\MoveWishlistItemProcessor;
 use Bwlab\SyliusWishlistPlugin\Api\Processor\RemoveWishlistItemProcessor;
 use Bwlab\SyliusWishlistPlugin\Api\Provider\ShopWishlistItemProvider;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -40,6 +42,14 @@ use Symfony\Component\Serializer\Attribute\Groups;
             input: ChangeWishlistItemQuantity::class,
             processor: ChangeWishlistItemQuantityProcessor::class,
         ),
+        new Post(
+            uriTemplate: '/shop/wishlist/items/{id}/move',
+            name: 'bwlab_wishlist_api_shop_item_move',
+            status: 200,
+            read: false,
+            input: MoveWishlistItem::class,
+            processor: MoveWishlistItemProcessor::class,
+        ),
         new Delete(
             uriTemplate: '/shop/wishlist/items/{id}',
             name: 'bwlab_wishlist_api_shop_item_delete',
@@ -54,4 +64,8 @@ final class ShopWishlistItem extends WishlistItemFields
     /** Needed by guests: send it back in the X-Wishlist-Token header. */
     #[Groups(['bwlab_wishlist:shop'])]
     public string $wishlistToken = '';
+
+    /** Id of the list the row belongs to. */
+    #[Groups(['bwlab_wishlist:shop'])]
+    public ?int $listId = null;
 }

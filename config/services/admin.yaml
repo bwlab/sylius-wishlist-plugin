@@ -21,3 +21,7 @@ services:
     Bwlab\SyliusWishlistPlugin\Purge\:
         resource: '../../src/Purge/'
         exclude: '../../src/Purge/PurgeResult.php'
+
+    Bwlab\SyliusWishlistPlugin\Admin\Customer\:
+        resource: '../../src/Admin/Customer/'
+        exclude: '../../src/Admin/Customer/{ChannelWishlists,WishlistView,ItemView}.php'

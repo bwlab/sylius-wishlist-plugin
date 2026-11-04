@@ -1,0 +1,277 @@
+Stage 2 — Multiple Wishlists
+Task Type: Story​
+Title: Implement Multiple Named Wishlists
+
+
+Description
+As a customer, I want to create and manage multiple named wishlists so that I can organize
+my favorite products for different purposes, such as birthdays, Christmas, or personal
+shopping plans.
+
+Extend the existing Basic Wishlist functionality to support multiple independent wishlists per
+customer.
+
+Customers should be able to create, view, rename, and delete wishlists, select which wishlist
+to add a product to, and manage products within individual lists.
+
+For example, a customer might create the following wishlists:
+
+   ●​ My Favorites — products they personally like.
+   ●​ Birthday — products they would like to receive as gifts.
+   ●​ Christmas — products they are considering for the holidays.
+
+Each wishlist should have its own name and collection of products.
+
+All existing functionality from Stage 1 must remain available.
+
+
+Gherkin Scenarios
+Scenario 1 — Create a named wishlist
+
+  None‎
+  Given I am browsing the storefront
+  When I navigate to the wishlist section
+  And I create a new wishlist named "Birthday"
+  Then a wishlist named "Birthday" should be created
+  And I should see "Birthday" among my available wishlists
+  And the new wishlist should initially be empty
+
+
+Scenario 2 — View all my wishlists
+ None‎
+ Given I have created the following wishlists:
+   | Name            |
+   | My Favorites |
+   | Birthday        |
+   | Christmas       |
+ When I navigate to the wishlist section
+ Then I should see all three wishlists
+ And I should be able to select any of them
+
+
+Scenario 3 — View products in a selected wishlist
+
+ None‎
+ Given I have a wishlist named "Birthday"
+ And "Birthday" contains the following products:
+   | Product     |
+   | T-Shirt     |
+   | Sunglasses |
+ And I have another wishlist named "Christmas"
+ When I open the "Birthday" wishlist
+ Then I should see "T-Shirt" and "Sunglasses"
+ And I should not see products belonging exclusively to
+ "Christmas"
+
+
+Scenario 4 — Add a product to a selected wishlist
+
+ None‎
+ Given I have the following wishlists:
+   | Name            |
+   | My Favorites |
+   | Birthday        |
+ When I browse a product detail page
+ And I click "Add to Wishlist"
+ And I select "Birthday" as the destination wishlist
+ Then the product should be added to "Birthday"
+ And the product should not be automatically added to "My
+ Favorites"
+
+
+Scenario 5 — Add the same product to different wishlists
+ None‎
+ Given I have a wishlist named "Birthday"
+ And I have a wishlist named "Christmas"
+ And "Birthday" already contains "T-Shirt"
+ When I add "T-Shirt" to "Christmas"
+ Then "T-Shirt" should exist in both wishlists
+ And neither wishlist should contain duplicate entries
+
+
+Scenario 6 — Rename a wishlist
+
+ None‎
+ Given I have a wishlist named "Birthday"
+ And "Birthday" contains two products
+ When I rename the wishlist to "Birthday Ideas"
+ Then the wishlist should be named "Birthday Ideas"
+ And its two products should remain unchanged
+ And the old name "Birthday" should no longer be displayed
+
+
+Scenario 7 — Delete a wishlist
+
+ None‎
+ Given I have a wishlist named "Christmas"
+ And "Christmas" contains three products
+ When I delete the "Christmas" wishlist
+ And I confirm the deletion
+ Then "Christmas" should no longer appear among my wishlists
+ And the three products should no longer be associated with that
+ wishlist
+ And my other wishlists should remain unchanged
+ And no products should be deleted from the store catalogue
+
+
+Scenario 8 — Remove a product from a specific wishlist
+
+ None‎
+ Given I have a wishlist named "Birthday"
+ And I have a wishlist named "Christmas"
+ And both wishlists contain "T-Shirt"
+ When I remove "T-Shirt" from "Birthday"
+ Then "T-Shirt" should no longer appear in "Birthday"
+ And "T-Shirt" should still appear in "Christmas"
+Scenario 9 — Move a product between wishlists
+
+ None‎
+ Given I have a wishlist named "Birthday"
+ And I have a wishlist named "Christmas"
+ And "Birthday" contains "Sunglasses"
+ When I move "Sunglasses" from "Birthday" to "Christmas"
+ Then "Sunglasses" should no longer appear in "Birthday"
+ And "Sunglasses" should appear in "Christmas"
+
+
+Scenario 10 — Prevent creating a wishlist without a name
+
+ None‎
+ Given I am creating a new wishlist
+ When I submit the form without providing a name
+ Then the wishlist should not be created
+ And I should see a validation message indicating that a name is
+ required
+
+
+Scenario 11 — Persist authenticated customer wishlists
+
+ None‎
+ Given I am logged in as a customer
+ And I have created a wishlist named "Birthday"
+ And I have added products to "Birthday"
+ When I log out
+ And I log in again
+ Then my "Birthday" wishlist should still exist
+ And its previously saved products should still be available
+
+
+Scenario 12 — Manage multiple wishlists as a guest
+
+ None‎
+ Given I am browsing the store as a guest
+ When I create a wishlist named "Birthday"
+ And I create another wishlist named "Christmas"
+ And I add a product to "Birthday"
+ When I refresh the page
+ Then both wishlists should still be available
+ And the product should still belong to "Birthday"
+Scenario 13 — Prevent unauthorized access to another customer's
+wishlist
+
+ None‎
+ Given a customer has a private wishlist named "Birthday"
+ When another customer attempts to access that wishlist
+ Then they should not be able to view or modify its contents
+
+
+Scenario 14 — Add products from a selected wishlist to the cart
+
+ None‎
+ Given I have a wishlist named "Christmas"
+ And "Christmas" contains multiple products available for purchase
+ When I open "Christmas"
+ And I select two products
+ And I click "Add Selected to Cart"
+ Then both selected products should be added to my shopping cart
+ And the products should remain in "Christmas"
+ And my other wishlists should remain unchanged
+
+
+
+User Acceptance Criteria
+  ●​     Customers can create multiple named wishlists.
+  ●​     Each wishlist has a name and an independent collection of products.
+  ●​     Customers can view all their wishlists in one place.
+  ●​     Customers can select a wishlist and view its products.
+  ●​     Customers can choose a destination wishlist when adding products from PDP or
+         PLP.
+  ●​     The same product can belong to multiple wishlists.
+  ●​     Duplicate product entries within the same wishlist are prevented.
+  ●​     Customers can rename existing wishlists without losing their contents.
+  ●​     Customers can delete individual wishlists without affecting other wishlists or
+         catalogue products.
+  ●​     Deleting a wishlist requires confirmation.
+  ●​     Customers can remove products from individual wishlists without affecting other lists.
+  ●​     Customers can move products between wishlists.
+  ●​     Wishlist names cannot be empty or consist only of whitespace.
+  ●​     Authenticated customers' named wishlists persist between login sessions.
+  ●​     Guests can manage multiple wishlists, which survive page refreshes within the same
+         browser.
+  ●​     Customers cannot access or modify another customer's private wishlists.
+  ●​     Existing single-product and multi-product Add to Cart functionality works within each
+         wishlist.
+  ●​     All existing Stage 1 functionality remains operational.
+   ●​ The complete functionality can be demonstrated through the storefront UI.
+
+
+Technical Details
+The implementation must remain compatible with the existing Stage 1 solution.
+
+Participants are free to choose the architecture, data model, persistence strategy, and user
+interface.
+
+Data model
+
+Consider separating the wishlist itself from its product entries.
+
+A single customer or guest may own multiple wishlists.
+
+A product may belong to multiple wishlists, but should occur only once within each individual
+wishlist.
+
+Guest wishlist persistence
+
+The guest identification mechanism introduced in Stage 1 can be reused.
+
+Cookies, browser storage, or server-side guest identifiers are acceptable approaches.
+
+Guest wishlists should remain isolated from other visitors.
+
+Authenticated customers
+
+Named wishlists should be associated with the authenticated customer and stored
+persistently.
+
+The implementation should respect existing platform authentication and authorization
+mechanisms.
+
+Existing MVP compatibility
+
+If Stage 1 introduced a single unnamed wishlist, participants may:
+
+   ●​ Convert it into a default wishlist, such as "My Favorites".
+   ●​ Keep it as the default wishlist while supporting additional named lists.
+
+Existing saved products should not be lost when extending the functionality.
+
+Product operations
+
+Product addition, removal, and cart integration should reuse the existing functionality
+wherever possible.
+
+Moving a product between wishlists may be implemented as a dedicated operation or as a
+combination of adding to the target list and removing from the source list.
+Frontend implementation
+
+The interface may use dropdowns, modals, separate pages, or traditional HTML forms.
+
+AJAX interactions are optional.
+
+Testing
+
+Automated tests are welcome but not mandatory.
+
+The implementation will be evaluated through a live demonstration against the acceptance
+criteria.
+

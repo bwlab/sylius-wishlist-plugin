@@ -9,6 +9,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 
 final class ChannelSettingsType extends AbstractType
@@ -20,8 +21,11 @@ final class ChannelSettingsType extends AbstractType
             'label' => 'bwlab_wishlist.ui.admin.settings.guest_lifetime_days',
             'help' => 'bwlab_wishlist.ui.admin.settings.guest_lifetime_days_help',
             'help_translation_parameters' => ['%days%' => $options['default_days']],
-            'attr' => ['min' => 1, 'placeholder' => (string) $options['default_days']],
-            'constraints' => [new GreaterThanOrEqual(['value' => 1, 'message' => 'bwlab_wishlist.admin.settings.min_one_day'])],
+            'attr' => ['min' => 1, 'max' => 3650, 'placeholder' => (string) $options['default_days']],
+            'constraints' => [
+                new GreaterThanOrEqual(['value' => 1, 'message' => 'bwlab_wishlist.admin.settings.min_one_day']),
+                new LessThanOrEqual(['value' => 3650, 'message' => 'bwlab_wishlist.admin.settings.max_days']),
+            ],
         ]);
     }
 

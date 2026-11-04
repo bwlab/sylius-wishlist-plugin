@@ -4,19 +4,22 @@
 {# The request URI is the live-component endpoint on re-render: build the page URL from the product. #}
 {% set return_to = path('sylius_shop_product_show', {slug: hookable_metadata.context.product.slug}) %}
 
-<div class="mb-3">
+<div class="mb-3" data-bwlab-wishlist-box>
+    {% include '@BwlabSyliusWishlistPlugin/shop/_destination.html.twig' with {destinations: bwlab_wishlist_destinations(), named: false} only %}
     <button type="button"
             class="btn btn-outline-secondary"
             data-test-bwlab-wishlist-add="pdp"
+            data-bwlab-wishlist-pdp
+            data-saving-label="{{ 'bwlab_wishlist.ui.shop.saving'|trans }}"
+            data-saved-label="{{ 'bwlab_wishlist.ui.shop.saved'|trans }}"
             {% if variant is null %}disabled="disabled"{% else %}
             data-url="{{ path('bwlab_wishlist_shop_add') }}"
             data-token="{{ csrf_token('bwlab_wishlist') }}"
             data-variant="{{ variant.id }}"
             data-return="{{ return_to }}"
-            onclick="var f=document.createElement('form');f.method='post';f.action=this.dataset.url;[['_token',this.dataset.token],['variant',this.dataset.variant],['source','pdp'],['returnTo',this.dataset.return]].forEach(function(p){var i=document.createElement('input');i.type='hidden';i.name=p[0];i.value=p[1];f.appendChild(i)});document.body.appendChild(f);f.submit();"
             {% endif %}>
         {{ ux_icon('tabler:heart', {class: 'icon icon-sm'}) }}
-        {{ 'bwlab_wishlist.ui.add_to_wishlist'|trans }}
+        <span data-bw-label>{{ 'bwlab_wishlist.ui.add_to_wishlist'|trans }}</span>
     </button>
     {% if variant is null %}
         <div class="form-text">{{ 'bwlab_wishlist.ui.shop.choose_variant_hint'|trans }}</div>

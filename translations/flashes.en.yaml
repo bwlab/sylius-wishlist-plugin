@@ -10,3 +10,10 @@ bwlab_wishlist:
     cart_item_failed: '"%name%" could not be added to your cart: %reason%'
     admin:
         settings_saved: Settings saved.
+    quantity_invalid: Enter a whole number from 1 to 9999. The quantity was not changed.
+    list_created: 'The list "%name%" has been created.'
+    list_renamed: 'The list has been renamed to "%name%".'
+    list_deleted: 'The list "%name%" has been deleted.'
+    item_moved: 'The product has been moved to "%list%".'
+    item_added_to_list: 'Saved in %list%.'
+    item_already_in_list: 'The product is already in %list%.'

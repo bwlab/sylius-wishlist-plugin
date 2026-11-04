@@ -69,6 +69,14 @@ bin/console cache:clear
 
 Released migrations are never modified: upgrades keep existing wishlists, no data reset is required.
 
+### 0.1.0 → 0.2.0 (multiple named lists)
+
+1. Back up the database.
+2. Run the commands above. The migration `Version20261104160000` adds the list name and the default flag, replaces the unique keys (one wishlist per customer → unique list name per owner and channel) and turns every existing wishlist into the default list «My Favorites». Items, quantities and dates are kept.
+3. Nothing to change in the shop: phase 1 routes and API calls without a list keep working on the default list. The guest cookie keeps its name and lifetime; it now identifies the owner of all their lists.
+
+The migration cannot be reverted (`migrate prev` refuses): going back would delete the extra lists.
+
 ## Admin settings and cleanup of expired guest wishlists
 
 Admin menu **Wishlist > Settings**: one form per channel with the guest wishlist lifetime in days
@@ -130,6 +138,36 @@ customer: `404`.
 | `GET /wishlist-channel-settings/{channelCode}` | settings of one channel |
 
 The visitor token is never exposed by the admin API. There is no write operation.
+
+### Multiple named lists (0.2.0)
+
+Phase 1 calls keep working unchanged: without a list, every operation uses the **default list**
+(`GET /shop/wishlist` still returns it, now also with `listId`, `name`, `isDefault`; rows carry `listId`).
+The new resources sit next to it. A list is chosen by its id (`5`) or its IRI (`/api/v2/shop/wishlists/5`).
+
+| Method and path | Body | Result |
+|---|---|---|
+| `GET /wishlists` | - | the owner's lists, default first: `id`, `name`, `isDefault`, `itemsCount`, `wishlistToken` (no rows; `[]` when nothing is saved) |
+| `POST /wishlists` | `{"name": "Christmas"}` | `201`, the new list (the default list is created first when missing) |
+| `GET /wishlists/{id}` | - | one list with its `items` |
+| `PATCH /wishlists/{id}` | `{"name": "Gifts"}` (`merge-patch+json`) | the list; the default list can be renamed too |
+| `DELETE /wishlists/{id}` | - | `204`, rows included. The default list: `409` |
+| `POST /wishlist/items/{id}/move` | `{"targetList": 5}` | the row in the target list (same variant already there: rows merge, larger quantity and older `addedAt` win) |
+
+List choice on the row operations:
+
+- `POST /wishlist/items` and `POST /wishlist/add-to-cart`: optional field `"list": 5` in the body.
+- `GET` / `PATCH` / `DELETE /wishlist/items/{id}` and `POST .../move` (source list): optional query `?list=5`.
+- Omitted: the default list, exactly as in phase 1. A row of another list is a `404` unless its list is given.
+
+`name` of the default list is translated by the request locale ("My Favorites" / "I miei preferiti") until it is renamed.
+
+Errors (message translated, `validators` domain): blank name, longer than 60 characters, name already used by the owner
+(case-insensitive), more than 20 lists, move to the same list: `422`. Deleting the default list: `409`.
+A list (or row) of another owner and a missing one answer the same `404`; the visitor token is only returned to its owner.
+
+Admin (still read only, other methods answer `405`): `GET /admin/wishlists` and `/admin/wishlists/{id}` now show `name` (as stored)
+and `isDefault`; one row is one list, so `?customer=<id or email>` returns all the lists of a customer, and `&channel=<code>` narrows it.
 
 ## Development
 

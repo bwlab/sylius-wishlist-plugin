@@ -64,6 +64,54 @@ $added = $modifier->addVariant($wishlist, $variant, 1, WishlistItemInterface::SO
 $wishlistRepository->add($wishlist);
 ```
 
+## Fase 2 — liste multiple (contratti della base S2A)
+
+Modello (`bwlab_wishlist_wishlist`, una riga = una lista):
+- `name` (max 60, già senza spazi ai lati), `nameCanonical` (minuscolo, collation `utf8mb4_bin`: chiave dell'unicità senza maiuscole/minuscole), `isDefault`.
+- Proprietario: cliente → `customer`; visitatore → `token` = valore del cookie `bwlab_wishlist`, **uguale per tutte le sue liste**.
+- Vincoli unici: `(customer_id, channel_id, name_canonical)` e `(token, channel_id, name_canonical)`. Tolti quelli della fase 1 (un cliente per canale, token unico).
+- Costanti `WishlistInterface::DEFAULT_NAME = 'My Favorites'`, `NAME_MAX_LENGTH = 60`, `MAX_LISTS = 20`. La lista predefinita ha nome salvato «My Favorites»: l'interfaccia può mostrarla tradotta (`isDefault()` e nome invariato).
+- Le righe (`WishlistItem`) non cambiano: unicità `(wishlist_id, variant_id)` = stessa variante una volta per lista, in più liste sì.
+
+`Resolver\CurrentWishlistResolverInterface` (proprietario corrente, canale corrente):
+
+| Metodo | Contratto |
+|---|---|
+| `find(): ?WishlistInterface` | lista **predefinita**, non crea (fase 1 invariata) |
+| `getOrCreate(): WishlistInterface` | predefinita o nuova in memoria (nome «My Favorites», `isDefault`); chi aggiunge la prima riga fa `add()` (fase 1 invariata) |
+| `findAll(): list<WishlistInterface>` | tutte le liste, predefinita prima, poi per data di creazione; `[]` se il visitatore non ha cookie |
+| `findOwned(int $id): ?WishlistInterface` | la lista se è del proprietario corrente, altrimenti `null` → rispondere **404** sia per "non tua" sia per "inesistente" |
+| `getTarget(?int $listId = null): ?WishlistInterface` | destinazione di un'aggiunta: id dato → `findOwned` (null = 404); id omesso → predefinita (`getOrCreate`, compatibile fase 1/API) |
+| `getLastUsed(): WishlistInterface` | lista da preselezionare nel menu PDP/PLP: quella con `updatedAt` più recente, altrimenti la predefinita |
+| `create(string $name): WishlistInterface` | valida, crea e **salva** (e salva prima la predefinita se manca). Lancia `Exception\WishlistNameException` |
+| `rename(WishlistInterface $w, string $name): void` | valida e **salva**; anche la predefinita. Lancia `WishlistNameException` |
+| `delete(WishlistInterface $w): void` | elimina lista e righe. Lancia `Exception\WishlistOperationException::DELETE_DEFAULT` sulla predefinita |
+
+`rename()` e `delete()` non ricontrollano il proprietario: passare solo liste ottenute da `findOwned()`.
+
+`Modifier\WishlistItemModifierInterface`:
+- `addVariant($wishlist, ...)` invariato: la lista la sceglie il chiamante (`getTarget($listId)`). `false` = già in **quella** lista (messaggio «già nella lista X»).
+- `moveItem(WishlistItemInterface $item, WishlistInterface $target): WishlistItemInterface` — sposta la riga (conserva `addedAt`, quantità, origine); se la variante c'è già in destinazione toglie l'origine e tiene quantità maggiore e `addedAt` più vecchio; ritorna la riga rimasta. Solo memoria: poi `add()` su repository per entrambe le liste. Stessa lista → `WishlistOperationException::SAME_LIST`. Il proprietario di entrambe lo controlla il chiamante (`findOwned`).
+
+Validazione nomi: `Policy\WishlistNamePolicy::check(string $name, iterable $ownerLists, ?WishlistInterface $renamed = null): string` (pura, ritorna il nome senza spazi ai lati). Errori = `WishlistNameException`, `getMessage()` è la chiave di traduzione del dominio **`validators`**, parametri in `->parameters`:
+`bwlab_wishlist.list.name.not_blank`, `.name.max_length` (`%limit%`), `.name.unique` (`%name%`), `bwlab_wishlist.list.max_lists` (`%limit%`); `WishlistOperationException`: `bwlab_wishlist.list.delete_default`, `bwlab_wishlist.list.move_same_list`. Uso: `$translator->trans($e->getMessage(), $e instanceof WishlistNameException ? $e->parameters : [], 'validators')`.
+
+Repository (`WishlistRepositoryInterface`): `findOneByCustomerAndChannel()` / `findOneGuestByTokenAndChannel()` ora ritornano la **predefinita**; nuovi `findAllByCustomerAndChannel()`, `findAllGuestByTokenAndChannel()`.
+
+Unione all'accesso (`Identity\WishlistMerger::mergeAll($guestLists, $customerLists, $customer)` → `['save' => [...], 'delete' => [...]]`, pura; `GuestWishlistClaimer` salva/elimina): predefinita visitatore → predefinita cliente (regola fase 1); altre liste → passano all'account; stesso nome (senza maiuscole) → le due liste si uniscono; oltre 20 → unite alla predefinita.
+
+Pulizia visitatori: la scadenza è per **proprietario** (token): si eliminano tutte le sue liste quando nessuna è stata vista dopo la soglia. Il visitatore resta "visto" tramite la predefinita (il resolver aggiorna `lastSeenAt` su `find()`/`getOrCreate()`).
+
+Contatore in testata: somma `countItems()` di `findAll()`.
+
+Esempio (negozio, aggiunta in una lista scelta):
+
+```php
+$wishlist = $resolver->getTarget($listId) ?? throw new NotFoundHttpException();
+$added = $modifier->addVariant($wishlist, $variant, 1, WishlistItemInterface::SOURCE_PDP);
+$wishlistRepository->add($wishlist);
+```
+
 ## Test
 
 `tests/Unit/` (PHPUnit). Dallo shop: `vendor/bin/phpunit --bootstrap vendor/autoload.php plugins/sylius-wishlist-plugin/tests/Unit`.

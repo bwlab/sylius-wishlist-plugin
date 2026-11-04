@@ -15,4 +15,7 @@ final class AddWishlistItem
     #[Assert\NotNull]
     #[Assert\Range(min: 1, max: 9999, notInRangeMessage: 'sylius.cart_item.quantity.not_in_range')]
     public int $quantity = 1;
+
+    /** Destination list (id or IRI). Omitted = the default list. */
+    public int|string|null $list = null;
 }

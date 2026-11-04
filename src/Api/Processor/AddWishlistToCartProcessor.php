@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use Bwlab\SyliusWishlistPlugin\Api\Cart\WishlistCartAdder;
 use Bwlab\SyliusWishlistPlugin\Api\Input\AddWishlistToCart;
+use Bwlab\SyliusWishlistPlugin\Api\Input\ListReference;
 use Bwlab\SyliusWishlistPlugin\Api\Output\AddWishlistToCartResult;
 use Bwlab\SyliusWishlistPlugin\Api\Security\CurrentWishlistItemFinder;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
@@ -31,7 +32,7 @@ final class AddWishlistToCartProcessor implements ProcessorInterface
         }
 
         return $this->cartAdder->add(
-            $this->finder->wishlist(),
+            $this->finder->wishlist(ListReference::parse($data->list)),
             $this->channelContext->getChannel(),
             $data->orderTokenValue,
             $data->all ? null : $data->itemIds,

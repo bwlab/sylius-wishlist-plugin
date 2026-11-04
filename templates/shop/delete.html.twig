@@ -1,0 +1,17 @@
+{% extends '@SyliusShop/shared/layout/base.html.twig' %}
+
+{% block title %}{{ 'bwlab_wishlist.ui.shop.lists.delete_title'|trans }} | {{ parent() }}{% endblock %}
+
+{% block content %}
+    <div class="container mt-5 mb-5" data-test-bwlab-wishlist-delete>
+        <h1 class="h2 mb-4">{{ 'bwlab_wishlist.ui.shop.lists.delete_title'|trans }}</h1>
+        <div class="alert alert-warning" style="max-width: 40rem;">
+            {{ 'bwlab_wishlist.ui.shop.lists.delete_confirm'|trans({'%name%': bwlab_wishlist_list_name(list), '%products%': 'bwlab_wishlist.ui.shop.lists.products'|trans({'%count%': list.countItems})}) }}
+        </div>
+        <form action="{{ path('bwlab_wishlist_shop_list_delete', {id: list.id}) }}" method="post" class="d-flex gap-2" data-bwlab-busy="{{ 'bwlab_wishlist.ui.shop.saving'|trans }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('bwlab_wishlist') }}">
+            <button type="submit" class="btn btn-danger" data-test-bwlab-wishlist-delete-confirm>{{ 'bwlab_wishlist.ui.shop.lists.delete_submit'|trans }}</button>
+            <a class="btn btn-link" href="{{ path('bwlab_wishlist_shop_lists') }}">{{ 'bwlab_wishlist.ui.shop.lists.cancel'|trans }}</a>
+        </form>
+    </div>
+{% endblock %}
