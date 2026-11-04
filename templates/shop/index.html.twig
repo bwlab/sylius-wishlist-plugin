@@ -16,7 +16,7 @@
             <div class="alert alert-info" data-test-bwlab-wishlist-empty>{{ 'bwlab_wishlist.ui.empty'|trans }}</div>
             <a class="btn btn-primary" href="{{ path('sylius_shop_homepage') }}">{{ 'bwlab_wishlist.ui.continue_shopping'|trans }}</a>
         {% else %}
-            <form id="bwlab-wishlist-bulk" action="{{ path('bwlab_wishlist_shop_cart_selected') }}" method="post">
+            <form id="bwlab-wishlist-bulk" action="{{ path('bwlab_wishlist_shop_cart_selected') }}" method="post" data-bwlab-busy="{{ 'bwlab_wishlist.ui.shop.adding_to_cart'|trans }}">
                 <input type="hidden" name="_token" value="{{ token }}">
                 <input type="hidden" name="returnTo" value="{{ return_to }}">
             </form>
@@ -57,7 +57,7 @@
                             </td>
                             <td>{{ money.calculatePrice(variant) }}</td>
                             <td>
-                                <form action="{{ path('bwlab_wishlist_shop_quantity', {id: item.id}) }}" method="post" class="d-flex gap-1">
+                                <form action="{{ path('bwlab_wishlist_shop_quantity', {id: item.id}) }}" method="post" class="d-flex gap-1" data-bwlab-busy="{{ 'bwlab_wishlist.ui.shop.saving'|trans }}">
                                     <input type="hidden" name="_token" value="{{ token }}">
                                     <input type="hidden" name="returnTo" value="{{ return_to }}">
                                     <input class="form-control form-control-sm" style="width: 5rem;" type="number" name="quantity" min="1" max="9999" value="{{ item.quantity }}" aria-label="{{ 'bwlab_wishlist.ui.shop.quantity'|trans }}">
@@ -73,12 +73,12 @@
                             </td>
                             <td class="text-end">
                                 <div class="d-flex gap-1 justify-content-end">
-                                    <form action="{{ path('bwlab_wishlist_shop_cart_item', {id: item.id}) }}" method="post">
+                                    <form action="{{ path('bwlab_wishlist_shop_cart_item', {id: item.id}) }}" method="post" data-bwlab-busy="{{ 'bwlab_wishlist.ui.shop.adding_to_cart'|trans }}">
                                         <input type="hidden" name="_token" value="{{ token }}">
                                         <input type="hidden" name="returnTo" value="{{ return_to }}">
                                         <button type="submit" class="btn btn-sm btn-primary" data-test-bwlab-wishlist-cart-item {% if not row.availability.purchasable %}disabled="disabled"{% endif %}>{{ 'bwlab_wishlist.ui.shop.add_to_cart'|trans }}</button>
                                     </form>
-                                    <form action="{{ path('bwlab_wishlist_shop_remove', {id: item.id}) }}" method="post">
+                                    <form action="{{ path('bwlab_wishlist_shop_remove', {id: item.id}) }}" method="post" data-bwlab-busy="{{ 'bwlab_wishlist.ui.shop.saving'|trans }}">
                                         <input type="hidden" name="_token" value="{{ token }}">
                                         <input type="hidden" name="returnTo" value="{{ return_to }}">
                                         <button type="submit" class="btn btn-sm btn-outline-danger" data-test-bwlab-wishlist-remove>{{ 'bwlab_wishlist.ui.remove'|trans }}</button>
@@ -93,7 +93,7 @@
 
             <div class="d-flex flex-wrap gap-2 mt-3">
                 <button type="submit" form="bwlab-wishlist-bulk" class="btn btn-primary" data-test-bwlab-wishlist-cart-selected>{{ 'bwlab_wishlist.ui.shop.add_selected'|trans }}</button>
-                <form action="{{ path('bwlab_wishlist_shop_cart_all') }}" method="post">
+                <form action="{{ path('bwlab_wishlist_shop_cart_all') }}" method="post" data-bwlab-busy="{{ 'bwlab_wishlist.ui.shop.adding_to_cart'|trans }}">
                     <input type="hidden" name="_token" value="{{ token }}">
                     <input type="hidden" name="returnTo" value="{{ return_to }}">
                     <button type="submit" class="btn btn-outline-primary" data-test-bwlab-wishlist-cart-all {% if purchasable_count == 0 %}disabled="disabled"{% endif %}>{{ 'bwlab_wishlist.ui.shop.add_all_available'|trans }}</button>
