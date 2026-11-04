@@ -9,3 +9,17 @@ bwlab_wishlist:
             available: Available
             out_of_stock: Out of stock
             unavailable: No longer available
+        shop:
+            title: My wishlist
+            link: Wishlist
+            product: Product
+            price: Price
+            quantity: Quantity
+            status: Status
+            update_quantity: Update
+            add_to_cart: Add to cart
+            add_selected: Add selected to cart
+            add_all_available: Add all available to cart
+            select_item: Select this product
+            choose_variant: Choose options
+            choose_variant_hint: Select the product options first, then save it.

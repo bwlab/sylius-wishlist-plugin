@@ -1,0 +1,10 @@
+{% set count = bwlab_wishlist_count() %}
+<div class="col-auto position-relative">
+    <a href="{{ path('bwlab_wishlist_shop_index') }}" class="btn btn-icon btn-transparent px-0 position-relative" aria-label="{{ 'bwlab_wishlist.ui.shop.link'|trans }}" data-test-bwlab-wishlist-link>
+        {{ ux_icon('tabler:heart') }}
+        <span class="d-none d-lg-inline ps-1">{{ 'bwlab_wishlist.ui.shop.link'|trans }}</span>
+        {% if count > 0 %}
+            <span class="position-absolute top-0 start-0 badge rounded-pill bg-primary" data-test-bwlab-wishlist-count="{{ count }}">{{ count }}</span>
+        {% endif %}
+    </a>
+</div>

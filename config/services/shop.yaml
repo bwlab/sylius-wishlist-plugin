@@ -1,6 +1,16 @@
-# shop services of the wishlist plugin. Service ids: bwlab_wishlist.shop.<name>.
+# shop services of the wishlist plugin (autowired by directory).
 services:
     _defaults:
         autowire: true
         autoconfigure: true
         public: false
+
+    Bwlab\SyliusWishlistPlugin\Cart\:
+        resource: '../../src/Cart/'
+
+    Bwlab\SyliusWishlistPlugin\Twig\:
+        resource: '../../src/Twig/'
+
+    Bwlab\SyliusWishlistPlugin\Controller\Shop\:
+        resource: '../../src/Controller/Shop/'
+        tags: ['controller.service_arguments']

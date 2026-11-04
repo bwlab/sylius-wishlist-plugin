@@ -2,3 +2,9 @@ bwlab_wishlist:
     item_added: The product has been added to your wishlist.
     item_already_present: The product is already in your wishlist.
     item_removed: The product has been removed from your wishlist.
+    variant_not_found: This product cannot be added to the wishlist.
+    invalid_request: The request is not valid or has expired. Please try again.
+    quantity_changed: The quantity has been updated.
+    nothing_to_add: There is nothing to add to the cart.
+    cart_added: '{1} One product has been added to your cart.|]1,Inf[ %count% products have been added to your cart.'
+    cart_item_failed: '"%name%" was not added to the cart: %reason%'

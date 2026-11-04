@@ -1,1 +1,2 @@
-# shop routes of the wishlist plugin. Route names: bwlab_wishlist_shop_<name>.
+# Shop routes: #[Route] attributes on src/Controller/Shop (names bwlab_wishlist_shop_*, prefix /{_locale}/wishlist).
+# Symfony registers them by itself (routing.controllers); nothing to import here.

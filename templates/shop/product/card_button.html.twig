@@ -1,0 +1,14 @@
+{% set product = hookable_metadata.context.product %}
+{% set variants = product.enabledVariants %}
+{% if variants|length == 1 %}
+    <div class="mt-2">
+        {% include '@BwlabSyliusWishlistPlugin/shop/_save_form.html.twig' with {variant: variants.first, source: 'plp', class: 'btn-sm btn-outline-secondary'} only %}
+    </div>
+{% elseif variants|length > 1 %}
+    <div class="mt-2">
+        <a class="btn btn-sm btn-outline-secondary" href="{{ path('sylius_shop_product_show', {'slug': product.slug, '_locale': product.translation.locale}) }}" data-test-bwlab-wishlist-add="plp-choose">
+            {{ ux_icon('tabler:heart', {class: 'icon icon-sm'}) }}
+            {{ 'bwlab_wishlist.ui.shop.choose_variant'|trans }}
+        </a>
+    </div>
+{% endif %}
