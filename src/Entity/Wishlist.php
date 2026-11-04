@@ -37,10 +37,10 @@ class Wishlist implements WishlistInterface
     #[ORM\Column(name: 'locale_code', type: 'string', length: 16, nullable: true)]
     protected ?string $localeCode = null;
 
-    #[ORM\Column(name: 'created_at', type: 'datetime')]
+    #[ORM\Column(name: 'created_at', type: 'datetime_immutable')]
     protected ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'updated_at', type: 'datetime_immutable', nullable: true)]
     protected ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\Column(name: 'last_seen_at', type: 'datetime_immutable', nullable: true)]
