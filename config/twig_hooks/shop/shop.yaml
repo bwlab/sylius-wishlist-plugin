@@ -1,3 +1,25 @@
-# Twig hooks (shop). Hook names: verify with vendor/bin/mate tools:call sylius_hooks_find_for_template.
 sylius_twig_hooks:
-    hooks: {}
+    hooks:
+        # Header: "Wishlist" link with row counter.
+        'sylius_shop.base.header.content':
+            wishlist:
+                template: '@BwlabSyliusWishlistPlugin/shop/header/link.html.twig'
+                priority: 150
+
+        # Product page: button inside the add-to-cart form (saves the variant chosen there).
+        'sylius_shop.product.show.content.info.summary.add_to_cart':
+            wishlist:
+                template: '@BwlabSyliusWishlistPlugin/shop/product/add_to_wishlist.html.twig'
+                priority: -50
+
+        # Product page when the add-to-cart form is not shown (no enabled variants / simple product out of stock).
+        'sylius_shop.product.show.content.info.summary':
+            wishlist_fallback:
+                template: '@BwlabSyliusWishlistPlugin/shop/product/add_to_wishlist_fallback.html.twig'
+                priority: 50
+
+        # Product listing: button on every product card.
+        'sylius_shop.shared.product.card':
+            wishlist:
+                template: '@BwlabSyliusWishlistPlugin/shop/product/card_button.html.twig'
+                priority: -100

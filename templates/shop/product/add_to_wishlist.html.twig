@@ -1,0 +1,24 @@
+{# Inside the (live) add-to-cart form: a plain button must not submit that form, so it posts its own form. #}
+{% set form = hookable_metadata.context.form %}
+{% set variant = form.cartItem.vars.value.variant %}
+{# The request URI is the live-component endpoint on re-render: build the page URL from the product. #}
+{% set return_to = path('sylius_shop_product_show', {slug: hookable_metadata.context.product.slug}) %}
+
+<div class="mb-3">
+    <button type="button"
+            class="btn btn-outline-secondary"
+            data-test-bwlab-wishlist-add="pdp"
+            {% if variant is null %}disabled="disabled"{% else %}
+            data-url="{{ path('bwlab_wishlist_shop_add') }}"
+            data-token="{{ csrf_token('bwlab_wishlist') }}"
+            data-variant="{{ variant.id }}"
+            data-return="{{ return_to }}"
+            onclick="var f=document.createElement('form');f.method='post';f.action=this.dataset.url;[['_token',this.dataset.token],['variant',this.dataset.variant],['source','pdp'],['returnTo',this.dataset.return]].forEach(function(p){var i=document.createElement('input');i.type='hidden';i.name=p[0];i.value=p[1];f.appendChild(i)});document.body.appendChild(f);f.submit();"
+            {% endif %}>
+        {{ ux_icon('tabler:heart', {class: 'icon icon-sm'}) }}
+        {{ 'bwlab_wishlist.ui.add_to_wishlist'|trans }}
+    </button>
+    {% if variant is null %}
+        <div class="form-text">{{ 'bwlab_wishlist.ui.shop.choose_variant_hint'|trans }}</div>
+    {% endif %}
+</div>
