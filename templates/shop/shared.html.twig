@@ -1,0 +1,76 @@
+{% extends '@SyliusShop/shared/layout/base.html.twig' %}
+
+{% import '@SyliusShop/shared/macro/money.html.twig' as money %}
+
+{# Public page of a shared list: read only, no login. Only the first name of the owner. The only form posts a "gift" into the visitor's own cart. #}
+{% set t = 'bwlab_wishlist_share' %}
+
+{% block title %}{{ title }} | {{ parent() }}{% endblock %}
+
+{% block content %}
+    {% set csrf = csrf_token('bwlab_wishlist_gift') %}
+    <div class="container mt-5 mb-5" data-test-bwlab-shared-page>
+        <h1 class="h2 mb-3" data-test-bwlab-shared-title>{{ title }}</h1>
+
+        {% if is_owner %}
+            <div class="alert alert-info" data-test-bwlab-shared-owner>{{ 'shared.owner_notice'|trans({}, t) }}</div>
+        {% endif %}
+        <p class="text-muted">{{ (first_name is null ? 'shared.intro_anonymous' : 'shared.intro')|trans({'%name%': first_name}, t) }}</p>
+
+        {% if rows is empty %}
+            <div class="alert alert-info" data-test-bwlab-shared-empty>{{ 'shared.empty'|trans({}, t) }}</div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table align-middle" data-test-bwlab-shared-table>
+                    <thead>
+                        <tr>
+                            <th colspan="2">{{ 'bwlab_wishlist.ui.shop.product'|trans }}</th>
+                            <th>{{ 'bwlab_wishlist.ui.shop.price'|trans }}</th>
+                            <th>{{ 'bwlab_wishlist.ui.shop.quantity'|trans }}</th>
+                            <th>{{ 'bwlab_wishlist.ui.shop.status'|trans }}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in rows %}
+                        {% set item = row.item %}
+                        {% set variant = item.variant %}
+                        {% set product = variant.product %}
+                        <tr data-test-bwlab-shared-item="{{ variant.code }}">
+                            <td style="width: 5rem;">
+                                <div class="bg-light rounded-3 overflow-hidden" style="aspect-ratio: 3/4;">
+                                    {{ component('sylius_shop:main_image', { product: product, class: 'w-100 h-100 object-fit-cover' }) }}
+                                </div>
+                            </td>
+                            <td>
+                                <a class="link-reset fw-bold" href="{{ path('sylius_shop_product_show', {'slug': product.slug}) }}">{{ product.name }}</a>
+                                {% if not product.simple %}
+                                    <div class="text-muted small">{{ variant.name|default(variant.code) }}</div>
+                                {% endif %}
+                            </td>
+                            <td>{{ money.calculatePrice(variant) }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td data-test-bwlab-shared-status="{{ row.availability.value }}">
+                                <span class="badge {{ row.availability.purchasable ? 'bg-success' : 'bg-danger' }}">{{ row.availability.translationKey|trans }}</span>
+                            </td>
+                            <td class="text-end">
+                                {% if row.gifted %}
+                                    <span class="badge bg-secondary" data-test-bwlab-shared-gifted>{{ 'shared.gifted'|trans({}, t) }}</span>
+                                {% elseif row.availability.purchasable %}
+                                    <form action="{{ path('bwlab_wishlist_shop_gift', {token: token, id: item.id}) }}" method="post" data-bwlab-busy="{{ 'bwlab_wishlist.ui.shop.adding_to_cart'|trans }}">
+                                        <input type="hidden" name="_token" value="{{ csrf }}">
+                                        <button type="submit" class="btn btn-sm btn-primary" data-test-bwlab-shared-gift {% if is_owner %}disabled="disabled"{% endif %}>
+                                            {{ (first_name is null ? 'shared.gift_anonymous' : 'shared.gift_to')|trans({'%name%': first_name}, t) }}
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p class="small text-muted">{{ 'shared.address_note'|trans({}, t) }}</p>
+        {% endif %}
+    </div>
+{% endblock %}

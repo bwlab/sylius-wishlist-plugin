@@ -1,0 +1,63 @@
+{# Owner's sharing panel on the list page. Needs: list (persisted), token (CSRF 'bwlab_wishlist'), return_to. #}
+{% set t = 'bwlab_wishlist_share' %}
+{% if list is not null and list.id is not null %}
+    <section class="card mb-4" data-test-bwlab-share>
+        <div class="card-body">
+            <h2 class="h5 mb-2">{{ 'panel.title'|trans({}, t) }}</h2>
+            {% if list.guest %}
+                <p class="mb-0" data-test-bwlab-share-login>
+                    <a href="{{ path('sylius_shop_login') }}">{{ 'panel.login'|trans({}, t) }}</a>
+                </p>
+            {% elseif not list.shared %}
+                <p class="text-muted">{{ 'panel.intro_off'|trans({}, t) }}</p>
+                <form action="{{ path('bwlab_wishlist_shop_share_on', {id: list.id}) }}" method="post" data-bwlab-busy="{{ 'panel.working'|trans({}, t) }}">
+                    <input type="hidden" name="_token" value="{{ token }}">
+                    <input type="hidden" name="returnTo" value="{{ return_to }}">
+                    <button type="submit" class="btn btn-primary" data-test-bwlab-share-on>{{ 'panel.share'|trans({}, t) }}</button>
+                </form>
+            {% else %}
+                {% set link = url('bwlab_wishlist_shop_shared', {token: list.shareToken}) %}
+                {% set list_name = bwlab_wishlist_list_name(list) %}
+                <p class="text-muted">{{ 'panel.intro_on'|trans({}, t) }}</p>
+                <label class="form-label" for="bwlab-share-link">{{ 'panel.link_label'|trans({}, t) }}</label>
+                <div class="input-group mb-3">
+                    <input id="bwlab-share-link" class="form-control" type="text" readonly value="{{ link }}" data-test-bwlab-share-link>
+                    <button type="button" class="btn btn-outline-secondary" data-bwlab-copy data-copied="{{ 'panel.copied'|trans({}, t) }}">{{ 'panel.copy'|trans({}, t) }}</button>
+                </div>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <a class="btn btn-outline-primary btn-sm" data-test-bwlab-share-email
+                       href="mailto:?subject={{ 'panel.mail_subject'|trans({'%list%': list_name}, t)|url_encode }}&amp;body={{ 'panel.mail_body'|trans({'%list%': list_name, '%link%': link}, t)|url_encode }}">{{ 'panel.via_email'|trans({}, t) }}</a>
+                    <a class="btn btn-outline-primary btn-sm" data-test-bwlab-share-whatsapp target="_blank" rel="noopener noreferrer"
+                       href="https://wa.me/?text={{ 'panel.chat_text'|trans({'%list%': list_name, '%link%': link}, t)|url_encode }}">{{ 'panel.via_whatsapp'|trans({}, t) }}</a>
+                    <a class="btn btn-outline-primary btn-sm" data-test-bwlab-share-facebook target="_blank" rel="noopener noreferrer"
+                       href="https://www.facebook.com/sharer/sharer.php?u={{ link|url_encode }}">{{ 'panel.via_facebook'|trans({}, t) }}</a>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <form action="{{ path('bwlab_wishlist_shop_share_off', {id: list.id}) }}" method="post" data-bwlab-busy="{{ 'panel.working'|trans({}, t) }}">
+                        <input type="hidden" name="_token" value="{{ token }}">
+                        <input type="hidden" name="returnTo" value="{{ return_to }}">
+                        <button type="submit" class="btn btn-outline-danger btn-sm" data-test-bwlab-share-off>{{ 'panel.stop'|trans({}, t) }}</button>
+                    </form>
+                    <form action="{{ path('bwlab_wishlist_shop_share_renew', {id: list.id}) }}" method="post" data-bwlab-busy="{{ 'panel.working'|trans({}, t) }}">
+                        <input type="hidden" name="_token" value="{{ token }}">
+                        <input type="hidden" name="returnTo" value="{{ return_to }}">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm" data-test-bwlab-share-renew>{{ 'panel.renew'|trans({}, t) }}</button>
+                    </form>
+                </div>
+                <p class="small text-muted mt-2 mb-0">{{ 'panel.renew_help'|trans({}, t) }}</p>
+                <script>
+                (function () {
+                    var button = document.querySelector('[data-bwlab-copy]'), input = document.getElementById('bwlab-share-link');
+                    if (!button || !input) { return; }
+                    button.addEventListener('click', function () {
+                        input.select();
+                        var done = function () { button.textContent = button.getAttribute('data-copied'); };
+                        if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(input.value).then(done); return; }
+                        try { document.execCommand('copy'); done(); } catch (e) { /* the field is selected: Ctrl+C works */ }
+                    });
+                })();
+                </script>
+            {% endif %}
+        </div>
+    </section>
+{% endif %}

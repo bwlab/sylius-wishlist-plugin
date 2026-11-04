@@ -1,0 +1,37 @@
+panel:
+    title: Condividi questa lista
+    intro_off: 'Il link è spento. Accendilo per far vedere la lista (in sola lettura) a chi ha il link e permettergli di farti un regalo.'
+    intro_on: 'Il link è acceso. Chi lo ha può vedere questa lista, ma non può modificare nulla.'
+    login: Accedi per condividere questa lista.
+    share: Condividi
+    working: Attendere…
+    link_label: Link di questa lista
+    copy: Copia link
+    copied: Link copiato
+    via_email: Invia per email
+    via_whatsapp: WhatsApp
+    via_facebook: Facebook
+    stop: Smetti di condividere
+    renew: Nuovo link
+    renew_help: '«Smetti di condividere» spegne il link. «Nuovo link» lo sostituisce: quello vecchio smette di funzionare.'
+    mail_subject: 'La mia lista dei desideri "%list%"'
+    mail_body: "Ciao!\n\nEcco la mia lista dei desideri \"%list%\". Dai un'occhiata e, se ti va, fammi un regalo:\n\n%link%"
+    chat_text: 'La mia lista dei desideri "%list%": %link%'
+shared:
+    intro: 'Scegli un regalo per %name% e mettilo nel carrello.'
+    intro_anonymous: 'Scegli un regalo e mettilo nel carrello.'
+    gift_to: 'Regala a %name%'
+    gift_anonymous: 'Regala'
+    gifted: Già regalato
+    empty: Questa lista è vuota.
+    owner_notice: 'Questa è la lista come la vedono i tuoi amici. I pulsanti «Regala» sono disattivati per te.'
+    address_note: 'L''indirizzo di spedizione lo inserisci tu al pagamento.'
+flash:
+    on: 'La lista è ora condivisa. Copia il link e mandalo ai tuoi amici.'
+    off: 'Condivisione spenta. Il link non funziona più.'
+    renewed: 'Nuovo link creato. Quello vecchio non funziona più.'
+    gift_added: 'Aggiunto il regalo per %name%.'
+    gift_added_anonymous: 'Il regalo è stato aggiunto al carrello.'
+    already_gifted: 'Questo regalo è già stato fatto.'
+    own_list: 'Questa è la tua lista. Usa «Al carrello» nella pagina della tua wishlist.'
+    not_added: 'Non è stato possibile aggiungere il regalo al carrello: %reason%'

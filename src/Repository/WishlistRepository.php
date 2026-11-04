@@ -58,4 +58,9 @@ class WishlistRepository extends EntityRepository implements WishlistRepositoryI
             'SELECT COUNT(i.id) FROM ' . \Bwlab\SyliusWishlistPlugin\Entity\WishlistItemInterface::class . ' i JOIN i.wishlist w WHERE w.customer = :customer',
         )->setParameter('customer', $customer)->getSingleScalarResult();
     }
+
+    public function findOneByShareToken(string $shareToken): ?WishlistInterface
+    {
+        return $this->findOneBy(['shareToken' => $shareToken]);
+    }
 }

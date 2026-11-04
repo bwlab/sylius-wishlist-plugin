@@ -16,6 +16,7 @@ use Sylius\Component\Core\Model\ProductVariantInterface;
 // Phase 2: one owner (customer, or guest token shared by all its lists) has many lists; names unique per owner and channel, case-insensitive.
 #[ORM\UniqueConstraint(name: 'bwlab_wishlist_customer_channel_name', columns: ['customer_id', 'channel_id', 'name_canonical'])]
 #[ORM\UniqueConstraint(name: 'bwlab_wishlist_token_channel_name', columns: ['token', 'channel_id', 'name_canonical'])]
+#[ORM\UniqueConstraint(name: 'bwlab_wishlist_share_token', columns: ['share_token'])]
 #[ORM\Index(name: 'bwlab_wishlist_last_seen_idx', columns: ['last_seen_at'])]
 class Wishlist implements WishlistInterface
 {
@@ -44,6 +45,13 @@ class Wishlist implements WishlistInterface
 
     #[ORM\Column(name: 'is_default', type: 'boolean', options: ['default' => false])]
     protected bool $default = false;
+
+    /** Public link secret (64 hex chars from random_bytes). NULL = link off. Not the owner token above. */
+    #[ORM\Column(name: 'share_token', type: 'string', length: 64, nullable: true)]
+    protected ?string $shareToken = null;
+
+    #[ORM\Column(name: 'shared_at', type: 'datetime_immutable', nullable: true)]
+    protected ?\DateTimeImmutable $sharedAt = null;
 
     #[ORM\Column(name: 'locale_code', type: 'string', length: 16, nullable: true)]
     protected ?string $localeCode = null;
@@ -139,6 +147,40 @@ class Wishlist implements WishlistInterface
     public function setDefault(bool $default): void
     {
         $this->default = $default;
+    }
+
+    public function getShareToken(): ?string
+    {
+        return $this->shareToken;
+    }
+
+    public function getSharedAt(): ?\DateTimeImmutable
+    {
+        return $this->sharedAt;
+    }
+
+    public function isShared(): bool
+    {
+        return null !== $this->shareToken;
+    }
+
+    public function enableSharing(): void
+    {
+        if (!$this->isShared()) {
+            $this->renewShareToken();
+        }
+    }
+
+    public function renewShareToken(): void
+    {
+        $this->shareToken = bin2hex(random_bytes(32));
+        $this->sharedAt = new \DateTimeImmutable();
+    }
+
+    public function disableSharing(): void
+    {
+        $this->shareToken = null;
+        $this->sharedAt = null;
     }
 
     public function getLocaleCode(): ?string

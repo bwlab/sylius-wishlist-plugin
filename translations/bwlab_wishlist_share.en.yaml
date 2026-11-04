@@ -1,0 +1,37 @@
+panel:
+    title: Share this list
+    intro_off: 'The link is off. Turn it on to let anyone who has the link see this list (read only) and send you a gift.'
+    intro_on: 'The link is on. Anyone who has it can see this list, but cannot change anything.'
+    login: Log in to share this list.
+    share: Share
+    working: Please wait…
+    link_label: Link to this list
+    copy: Copy link
+    copied: Link copied
+    via_email: Send by email
+    via_whatsapp: WhatsApp
+    via_facebook: Facebook
+    stop: Stop sharing
+    renew: New link
+    renew_help: 'Stop sharing turns the link off. New link replaces it: the old one stops working.'
+    mail_subject: 'My wishlist "%list%"'
+    mail_body: "Hi!\n\nHere is my wishlist \"%list%\". Have a look and, if you like, send me a gift:\n\n%link%"
+    chat_text: 'My wishlist "%list%": %link%'
+shared:
+    intro: 'Choose a gift for %name% and add it to your cart.'
+    intro_anonymous: 'Choose a gift and add it to your cart.'
+    gift_to: 'Gift to %name%'
+    gift_anonymous: 'Gift this'
+    gifted: Already gifted
+    empty: This list is empty.
+    owner_notice: 'This is how your friends see your list. The gift buttons are disabled for you.'
+    address_note: 'You enter the delivery address yourself at checkout.'
+flash:
+    on: 'Your list is now shared. Copy the link and send it to your friends.'
+    off: 'Sharing is off. The link no longer works.'
+    renewed: 'New link created. The old one no longer works.'
+    gift_added: 'The gift for %name% has been added to your cart.'
+    gift_added_anonymous: 'The gift has been added to your cart.'
+    already_gifted: 'This gift has already been given.'
+    own_list: 'This is your own list. Use "Add to cart" on your wishlist page.'
+    not_added: 'The gift could not be added to your cart: %reason%'

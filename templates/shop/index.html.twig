@@ -22,6 +22,8 @@
             <h1 class="h2 mb-4" data-test-bwlab-wishlist-title>{{ bwlab_wishlist_list_name(list) }}</h1>
         {% endif %}
 
+        {% include '@BwlabSyliusWishlistPlugin/shop/share/_panel.html.twig' %}
+
         {% if rows is empty %}
             <div class="alert alert-info" data-test-bwlab-wishlist-empty>{{ 'bwlab_wishlist.ui.empty'|trans }}</div>
             <a class="btn btn-primary" href="{{ path('sylius_shop_homepage') }}">{{ 'bwlab_wishlist.ui.continue_shopping'|trans }}</a>
