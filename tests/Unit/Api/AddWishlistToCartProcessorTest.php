@@ -11,7 +11,9 @@ use Bwlab\SyliusWishlistPlugin\Api\Processor\AddWishlistToCartProcessor;
 use Bwlab\SyliusWishlistPlugin\Api\Security\CurrentWishlistItemFinder;
 use Bwlab\SyliusWishlistPlugin\Checker\VariantAvailabilityCheckerInterface;
 use Bwlab\SyliusWishlistPlugin\Resolver\CurrentWishlistResolverInterface;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use Sylius\Bundle\ApiBundle\Context\UserContextInterface;
 use Sylius\Component\Core\Repository\OrderRepositoryInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -29,6 +31,8 @@ final class AddWishlistToCartProcessorTest extends TestCase
                 $this->createStub(VariantAvailabilityCheckerInterface::class),
                 $this->createStub(ValidatorInterface::class),
                 $this->createStub(MessageBusInterface::class),
+                $this->createStub(UserContextInterface::class),
+                $this->createStub(EntityManagerInterface::class),
             ),
             $this->createStub(ChannelContextInterface::class),
         );
