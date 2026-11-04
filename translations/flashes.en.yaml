@@ -1,15 +1,15 @@
 bwlab_wishlist:
-    item_added: The product has been added to your wishlist.
-    item_already_present: The product is already in your wishlist.
-    item_removed: The product has been removed from your wishlist.
-    variant_not_found: This product cannot be added to the wishlist.
-    invalid_request: The request is not valid or has expired. Please try again.
-    quantity_changed: The quantity has been updated.
-    nothing_to_add: There is nothing to add to the cart.
-    cart_added: '{1} One product has been added to your cart.|]1,Inf[ %count% products have been added to your cart.'
-    cart_item_failed: '"%name%" was not added to the cart: %reason%'
+    item_added: Added to your wishlist.
+    item_already_present: This product is already in your wishlist.
+    item_removed: Removed from your wishlist.
+    variant_not_found: This product can't be added. Choose another option or try a different product.
+    invalid_request: Your session has expired. Reload the page and try again.
+    quantity_changed: Quantity updated.
+    nothing_to_add: No available products to add. Check the status of the items in your wishlist.
+    cart_added: '{1} One product added to your cart.|]1,Inf[ %count% products added to your cart.'
+    cart_item_failed: '"%name%" could not be added to your cart: %reason%'
     admin:
-        settings_saved: Wishlist settings saved.
+        settings_saved: Settings saved.
     quantity_invalid: Enter a whole number from 1 to 9999. The quantity was not changed.
     list_created: 'The list "%name%" has been created.'
     list_renamed: 'The list has been renamed to "%name%".'

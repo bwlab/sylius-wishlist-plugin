@@ -2,8 +2,8 @@ bwlab_wishlist:
     ui:
         wishlist: Wishlist
         add_to_wishlist: Aggiungi alla wishlist
-        remove: Togli
-        empty: La tua wishlist è vuota.
+        remove: Rimuovi
+        empty: La tua wishlist è vuota. Salva i prodotti che ti piacciono e ritrovali qui.
         continue_shopping: Continua gli acquisti
         availability:
             available: Disponibile
@@ -15,17 +15,17 @@ bwlab_wishlist:
             product: Prodotto
             price: Prezzo
             quantity: Quantità
-            status: Stato
-            update_quantity: Aggiorna
+            status: Disponibilità
+            update_quantity: Aggiorna quantità
             add_to_cart: Aggiungi al carrello
             add_selected: Aggiungi i selezionati al carrello
             add_all_available: Aggiungi tutti i disponibili al carrello
             select_item: Seleziona questo prodotto
             choose_variant: Scegli le opzioni
+            choose_variant_hint: Scegli le opzioni del prodotto, poi aggiungilo alla wishlist.
             saving: Salvataggio…
             saved: Nella wishlist
             adding_to_cart: Aggiunta al carrello…
-            choose_variant_hint: Scegli prima le opzioni del prodotto, poi salvalo.
             default_list_name: I miei preferiti
             lists:
                 title: Le mie wishlist
@@ -59,8 +59,8 @@ bwlab_wishlist:
             settings:
                 title: Impostazioni wishlist
                 intro: Impostazioni per ogni canale. Lascia vuoto un campo per usare il valore predefinito.
-                guest_lifetime_days: Durata wishlist visitatore (giorni)
-                guest_lifetime_days_help: Giorni di conservazione della wishlist del visitatore dopo l'ultima visita. Vuoto = predefinito (%days% giorni).
+                guest_lifetime_days: Durata wishlist ospiti (giorni)
+                guest_lifetime_days_help: Giorni di conservazione della wishlist di un ospite dopo l'ultima visita. Vuoto = predefinito (%days% giorni).
                 save: Salva
             customer:
                 title: Wishlist

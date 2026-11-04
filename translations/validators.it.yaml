@@ -1,7 +1,7 @@
 bwlab_wishlist:
     admin:
         settings:
-            min_one_day: La durata deve essere di almeno 1 giorno.
+            min_one_day: Inserisci almeno 1 giorno.
             max_days: La durata non può superare 3650 giorni (10 anni).
     list:
         name:
