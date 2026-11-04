@@ -103,7 +103,7 @@ final class ListSelectionTest extends TestCase
     public function testAddWithoutListUsesTheDefaultTarget(): void
     {
         [$processor, $resolver] = $this->addProcessor();
-        // getTarget(null) = default list (getOrCreate): the phase 1 behaviour. Here it ends in a 404 only because the stub list has no row.
+        // getTarget(null) = default list (getOrCreate): the phase 1 behaviour. The stub returns null only to stop the test there (404).
         $resolver->expects(self::once())->method('getTarget')->with(null)->willReturn(null);
         $input = new AddWishlistItem();
         $input->variantCode = 'V1';

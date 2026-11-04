@@ -129,5 +129,6 @@ final class WishlistListProcessorsTest extends TestCase
         self::assertSame('T:default_list_name', $this->views->listName($this->list(1, 'My Favorites', true)));
         self::assertSame('T:default_list_name', $this->views->listName(null));
         self::assertSame('Natale', $this->views->listName($this->list(2, 'Natale')));
+        self::assertSame('Casa', $this->views->listName($this->list(1, 'Casa', true)), 'a renamed default list keeps its name');
     }
 }

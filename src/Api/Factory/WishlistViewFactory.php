@@ -53,10 +53,10 @@ final class WishlistViewFactory
         return $view;
     }
 
-    /** The default list is shown translated; the others keep the name chosen by the owner. */
+    /** The default list still called "My Favorites" is shown translated; a renamed list (default or not) keeps the owner's name. */
     public function listName(?WishlistInterface $wishlist): string
     {
-        if (null === $wishlist || $wishlist->isDefault()) {
+        if (null === $wishlist || ($wishlist->isDefault() && WishlistInterface::DEFAULT_NAME === $wishlist->getName())) {
             return $this->translator->trans('default_list_name', [], 'bwlab_wishlist_api', $this->localeContext->getLocaleCode());
         }
 
