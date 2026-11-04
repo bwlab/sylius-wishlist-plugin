@@ -11,6 +11,7 @@ use Sylius\Component\Channel\Context\ChannelNotFoundException;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /** Attaches the guest wishlist of the current browser (own cookie, current channel only) to a customer. */
@@ -26,6 +27,7 @@ final class GuestWishlistClaimer
         private readonly RequestStack $requestStack,
         #[Autowire('%bwlab_wishlist.cookie_name%')]
         private readonly string $cookieName,
+        private readonly ?LoggerInterface $logger = null,
     ) {
     }
 
@@ -49,10 +51,17 @@ final class GuestWishlistClaimer
             return;
         }
 
-        $survivor = $this->merger->merge($guest, $this->wishlistRepository->findOneByCustomerAndChannel($customer, $channel), $customer);
-        $this->wishlistRepository->add($survivor);
-        if ($survivor !== $guest) {
-            $this->wishlistRepository->remove($guest);
+        // A failed merge (e.g. unique customer+channel hit by another tab) must never block the login: keep the cookie, retry next login.
+        try {
+            $survivor = $this->merger->merge($guest, $this->wishlistRepository->findOneByCustomerAndChannel($customer, $channel), $customer);
+            $this->wishlistRepository->add($survivor);
+            if ($survivor !== $guest) {
+                $this->wishlistRepository->remove($guest);
+            }
+        } catch (\Throwable $e) {
+            $this->logger?->error('Wishlist merge failed at login.', ['exception' => $e]);
+
+            return;
         }
 
         // Resolver cache must not hand the deleted guest wishlist to later code in this request.
