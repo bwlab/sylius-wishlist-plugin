@@ -77,6 +77,12 @@ Released migrations are never modified: upgrades keep existing wishlists, no dat
 
 The migration cannot be reverted (`migrate prev` refuses): going back would delete the extra lists.
 
+### 0.2.x → 0.3.0 (sharing and gifting)
+
+1. Back up the database.
+2. Run the commands above. The migration `Version20261104172000` is additive: two nullable columns on the wishlist table (`share_token`, `shared_at`, unique key on the token) and the small table `bwlab_wishlist_gift`. No existing data changes; every list starts with the link off. `migrate prev` removes them again.
+3. Nothing to configure. Add no route import: the new routes are loaded like the other shop routes.
+
 ## Admin settings and cleanup of expired guest wishlists
 
 Admin menu **Wishlist > Settings**: one form per channel with the guest wishlist lifetime in days
@@ -96,6 +102,23 @@ Cron (every night at 03:30):
 ```cron
 30 3 * * * cd /path/to/shop && php bin/console bwlab:wishlist:purge-expired --env=prod --no-debug >> var/log/wishlist-purge.log 2>&1
 ```
+
+## Sharing and gifting (0.3.0)
+
+**Owner** (registered customers only; a guest sees «log in to share»). On the page of a list, panel «Share this list»:
+
+- **Share** turns the link on: `/{locale}/wishlist/shared/{token}`. The token is 64 hex characters from `random_bytes(32)`, unique, never guessable. Every list has its own link, **off by default**.
+- **Copy link**, **Send by email** (`mailto:`), **WhatsApp** (`wa.me`), **Facebook** (sharer): plain links, no third-party script.
+- **Stop sharing** turns the link off; turning it on again gives a different link. **New link** replaces it: the old one stops working at once.
+- All three are POST + CSRF, only on the customer's own list (anything else: the same 404 as a missing list).
+
+**Public page** (no login, read only): title «<list name> · <first name>» (only the first name: no surname, email or address). Each product shows image, name, variant, price of the current channel, desired quantity and status (Available / Out of stock / No longer available). Purchasable products have the button **«Gift to <name>»** instead of the cart; the others only the status. Unknown token, link off, list of another channel: one identical 404. Headers: `X-Robots-Tag: noindex, nofollow`, `Cache-Control: no-store, private`, `Referrer-Policy: no-referrer`; only the shop's own scripts are loaded. When the owner opens the page, it is shown with a notice and the gift buttons disabled.
+
+**Gift**: POST + CSRF adds the variant (desired quantity) to the **visitor's own cart**, with the same service and validation as «Add to cart» on the wishlist page, then redirects to the cart with «Added the gift for <name>». The friend pays and types the delivery address in the standard checkout; the owner's address is never used.
+
+**Already gifted**: the friend's session remembers the gift rows put in the cart. When the order is completed (event `sylius.order.post_complete`, the one Sylius uses for the confirmation email), those rows get a mark (`bwlab_wishlist_gift`: row id + date) and the public page shows «Already gifted» instead of the button. Nobody is recorded: the owner does not see who gave what. Limits: the mark needs the session of the checkout (orders completed through the headless API, or in another browser than the one that added the gift, are not marked).
+
+**Privacy**: the plugin logs no token or full link; the web server access log still contains the URL path, as for any link.
 
 ## API
 
