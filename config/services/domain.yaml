@@ -12,7 +12,7 @@ services:
 
     bwlab_wishlist.modifier.wishlist_item:
         class: Bwlab\SyliusWishlistPlugin\Modifier\WishlistItemModifier
-        arguments: ['@bwlab_wishlist.factory.wishlist_item']
+        arguments: ['@bwlab_wishlist.factory.wishlist_item', '@sylius.calculator.product_variant_price']
     Bwlab\SyliusWishlistPlugin\Modifier\WishlistItemModifierInterface: '@bwlab_wishlist.modifier.wishlist_item'
 
     bwlab_wishlist.provider.guest_lifetime:

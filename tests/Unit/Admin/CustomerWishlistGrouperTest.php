@@ -21,7 +21,7 @@ final class CustomerWishlistGrouperTest extends TestCase
         $checker = $this->createStub(VariantAvailabilityCheckerInterface::class);
         $checker->method('check')->willReturn($availability);
 
-        return new CustomerWishlistGrouper($checker);
+        return new CustomerWishlistGrouper($checker, $this->createStub(\Sylius\Component\Core\Calculator\ProductVariantPricesCalculatorInterface::class));
     }
 
     private function channel(string $code, string $name): ChannelInterface

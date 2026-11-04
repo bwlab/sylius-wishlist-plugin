@@ -7,6 +7,8 @@ namespace Bwlab\SyliusWishlistPlugin\Modifier;
 use Bwlab\SyliusWishlistPlugin\Entity\WishlistInterface;
 use Bwlab\SyliusWishlistPlugin\Entity\WishlistItemInterface;
 use Bwlab\SyliusWishlistPlugin\Exception\WishlistOperationException;
+use Sylius\Component\Core\Calculator\ProductVariantPricesCalculatorInterface;
+use Sylius\Component\Core\Exception\MissingChannelConfigurationException;
 use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Resource\Factory\FactoryInterface;
 
@@ -15,6 +17,7 @@ final class WishlistItemModifier implements WishlistItemModifierInterface
     /** @param FactoryInterface<WishlistItemInterface> $wishlistItemFactory */
     public function __construct(
         private readonly FactoryInterface $wishlistItemFactory,
+        private readonly ProductVariantPricesCalculatorInterface $priceCalculator,
         private readonly ?\Closure $clock = null,
     ) {
     }
@@ -34,6 +37,7 @@ final class WishlistItemModifier implements WishlistItemModifierInterface
         $item->setQuantity($quantity);
         $item->setSource($source);
         $item->setAddedAt($this->now());
+        $this->recordPrice($item, $wishlist, $variant);
         $wishlist->addItem($item);
         $wishlist->setUpdatedAt($this->now());
 
@@ -84,7 +88,27 @@ final class WishlistItemModifier implements WishlistItemModifierInterface
     public static function absorb(WishlistItemInterface $kept, WishlistItemInterface $dropped): void
     {
         $kept->setQuantity(max($kept->getQuantity(), $dropped->getQuantity()));
+        // The price follows the oldest row (even when unknown): it is the price at the first save.
+        if ($dropped->getAddedAt() < $kept->getAddedAt()) {
+            $kept->setPriceAtAdd($dropped->getPriceAtAdd(), $dropped->getCurrencyCode());
+        }
         $kept->setAddedAt(min($kept->getAddedAt(), $dropped->getAddedAt()));
+    }
+
+    /** Price the shop shows now in the wishlist channel; stays null when the channel has no price. */
+    private function recordPrice(WishlistItemInterface $item, WishlistInterface $wishlist, ProductVariantInterface $variant): void
+    {
+        $channel = $wishlist->getChannel();
+        if (null === $channel) {
+            return;
+        }
+
+        try {
+            $price = $this->priceCalculator->calculate($variant, ['channel' => $channel]);
+        } catch (MissingChannelConfigurationException) {
+            return;
+        }
+        $item->setPriceAtAdd($price, $channel->getBaseCurrency()?->getCode());
     }
 
     private function now(): \DateTimeImmutable

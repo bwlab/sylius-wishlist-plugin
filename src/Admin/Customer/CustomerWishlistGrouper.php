@@ -7,6 +7,8 @@ namespace Bwlab\SyliusWishlistPlugin\Admin\Customer;
 use Bwlab\SyliusWishlistPlugin\Checker\VariantAvailabilityCheckerInterface;
 use Bwlab\SyliusWishlistPlugin\Entity\WishlistInterface;
 use Bwlab\SyliusWishlistPlugin\Entity\WishlistItemInterface;
+use Sylius\Component\Core\Calculator\ProductVariantPricesCalculatorInterface;
+use Sylius\Component\Core\Exception\MissingChannelConfigurationException;
 
 /**
  * Pure logic (no I/O): groups lists by channel and sorts them.
@@ -15,8 +17,10 @@ use Bwlab\SyliusWishlistPlugin\Entity\WishlistItemInterface;
  */
 final class CustomerWishlistGrouper
 {
-    public function __construct(private readonly VariantAvailabilityCheckerInterface $availabilityChecker)
-    {
+    public function __construct(
+        private readonly VariantAvailabilityCheckerInterface $availabilityChecker,
+        private readonly ProductVariantPricesCalculatorInterface $priceCalculator,
+    ) {
     }
 
     /**
@@ -62,8 +66,17 @@ final class CustomerWishlistGrouper
         usort($items, static fn (WishlistItemInterface $a, WishlistItemInterface $b): int => [$b->getAddedAt()->getTimestamp(), $b->getId()] <=> [$a->getAddedAt()->getTimestamp(), $a->getId()]);
 
         return array_map(
-            fn (WishlistItemInterface $item): ItemView => new ItemView($item, $this->availabilityChecker->check($item->getVariant(), $channel)),
+            fn (WishlistItemInterface $item): ItemView => new ItemView($item, $this->availabilityChecker->check($item->getVariant(), $channel), $this->currentPrice($item, $channel)),
             $items,
         );
+    }
+
+    private function currentPrice(WishlistItemInterface $item, \Sylius\Component\Core\Model\ChannelInterface $channel): ?int
+    {
+        try {
+            return $this->priceCalculator->calculate($item->getVariant(), ['channel' => $channel]);
+        } catch (MissingChannelConfigurationException) {
+            return null;
+        }
     }
 }

@@ -36,4 +36,11 @@ interface WishlistItemInterface extends ResourceInterface
     public function getSource(): string;
 
     public function setSource(string $source): void;
+
+    /** Channel price in minor units when the row was saved (null: unknown). */
+    public function getPriceAtAdd(): ?int;
+
+    public function getCurrencyCode(): ?string;
+
+    public function setPriceAtAdd(?int $priceAtAdd, ?string $currencyCode): void;
 }

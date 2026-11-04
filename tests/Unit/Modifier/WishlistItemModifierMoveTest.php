@@ -10,6 +10,7 @@ use Bwlab\SyliusWishlistPlugin\Exception\WishlistOperationException;
 use Bwlab\SyliusWishlistPlugin\Modifier\WishlistItemModifier;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Sylius\Component\Core\Calculator\ProductVariantPricesCalculatorInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Resource\Factory\FactoryInterface;
 
@@ -17,7 +18,7 @@ final class WishlistItemModifierMoveTest extends TestCase
 {
     private function modifier(): WishlistItemModifier
     {
-        return new WishlistItemModifier($this->createStub(FactoryInterface::class), fn () => new \DateTimeImmutable('2026-11-04 12:00'));
+        return new WishlistItemModifier($this->createStub(FactoryInterface::class), $this->createStub(ProductVariantPricesCalculatorInterface::class), fn () => new \DateTimeImmutable('2026-11-04 12:00'));
     }
 
     private static function item(Wishlist $w, ProductVariantInterface $v, int $qty, string $addedAt): WishlistItem
@@ -68,5 +69,47 @@ final class WishlistItemModifierMoveTest extends TestCase
 
         $this->expectException(WishlistOperationException::class);
         $this->modifier()->moveItem($item, $w);
+    }
+
+    #[Test]
+    public function moving_onto_a_duplicate_keeps_the_price_of_the_oldest_row(): void
+    {
+        $v = $this->createStub(ProductVariantInterface::class);
+        $from = new Wishlist();
+        $to = new Wishlist();
+        $older = self::item($from, $v, 1, '2026-01-01');
+        $older->setPriceAtAdd(1000, 'EUR');
+        $newer = self::item($to, $v, 1, '2026-03-01');
+        $newer->setPriceAtAdd(800, 'EUR');
+
+        self::assertSame($newer, $this->modifier()->moveItem($older, $to));
+        self::assertSame(1000, $newer->getPriceAtAdd());
+        self::assertSame('EUR', $newer->getCurrencyCode());
+    }
+
+    #[Test]
+    public function moving_a_newer_duplicate_leaves_the_kept_price(): void
+    {
+        $v = $this->createStub(ProductVariantInterface::class);
+        $from = new Wishlist();
+        $to = new Wishlist();
+        $newer = self::item($from, $v, 1, '2026-03-01');
+        $newer->setPriceAtAdd(800, 'EUR');
+        $kept = self::item($to, $v, 1, '2026-01-01');
+        $kept->setPriceAtAdd(1000, 'EUR');
+
+        $this->modifier()->moveItem($newer, $to);
+        self::assertSame(1000, $kept->getPriceAtAdd());
+    }
+
+    #[Test]
+    public function a_plain_move_keeps_the_price(): void
+    {
+        $from = new Wishlist();
+        $item = self::item($from, $this->createStub(ProductVariantInterface::class), 1, '2026-01-01');
+        $item->setPriceAtAdd(1000, 'EUR');
+
+        $this->modifier()->moveItem($item, new Wishlist());
+        self::assertSame(1000, $item->getPriceAtAdd());
     }
 }

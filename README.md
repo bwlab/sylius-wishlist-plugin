@@ -77,6 +77,10 @@ Released migrations are never modified: upgrades keep existing wishlists, no dat
 
 The migration cannot be reverted (`migrate prev` refuses): going back would delete the extra lists.
 
+### 0.2.0 → 0.2.1 (price when saved)
+
+Back up the database and run the upgrade commands above. The migration `Version20261104170000` only adds two nullable columns to `bwlab_wishlist_item` (`price_at_add`, `currency_code`) and can be reverted. From now on a product saved in a wishlist records the channel price shown at that moment (minor units, with its currency); rows saved before 0.2.1 stay empty because the past price cannot be rebuilt. Moving a row or merging lists keeps the price of the oldest row; changing the quantity does not touch it. The shop and admin API rows expose `priceAtAdd` and `priceAtAddCurrencyCode`, and the customer page of the admin panel shows it next to the current price with a «Dropped» / «Rose» badge.
+
 ## Admin settings and cleanup of expired guest wishlists
 
 Admin menu **Wishlist > Settings**: one form per channel with the guest wishlist lifetime in days

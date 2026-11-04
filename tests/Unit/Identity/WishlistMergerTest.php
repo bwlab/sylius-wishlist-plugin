@@ -78,4 +78,19 @@ final class WishlistMergerTest extends TestCase
         self::assertEquals(new \DateTimeImmutable('2026-03-01'), $target->getItemForVariant($a)?->getAddedAt());
         self::assertSame(1, $target->countItems());
     }
+
+    #[Test]
+    public function the_merge_keeps_the_price_of_the_oldest_row(): void
+    {
+        $customer = $this->createStub(CustomerInterface::class);
+        $a = $this->createStub(ProductVariantInterface::class);
+        $guest = new Wishlist();
+        $target = new Wishlist();
+        $this->item($guest, $a, 1, '2026-01-01')->setPriceAtAdd(1000, 'EUR');
+        $this->item($target, $a, 1, '2026-03-01')->setPriceAtAdd(800, 'EUR');
+
+        (new WishlistMerger())->merge($guest, $target, $customer);
+
+        self::assertSame(1000, $target->getItemForVariant($a)?->getPriceAtAdd());
+    }
 }

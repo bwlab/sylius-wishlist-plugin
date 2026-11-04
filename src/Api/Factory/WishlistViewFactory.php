@@ -122,6 +122,8 @@ final class WishlistViewFactory
         $view->availability = $this->availabilityChecker->check($variant, $channel)->value;
         $view->currencyCode = $channel->getBaseCurrency()?->getCode();
         [$view->price, $view->originalPrice] = $this->prices($variant, $channel);
+        $view->priceAtAdd = $item->getPriceAtAdd();
+        $view->priceAtAddCurrencyCode = $item->getCurrencyCode();
     }
 
     /** @return array{0: ?int, 1: ?int} */
