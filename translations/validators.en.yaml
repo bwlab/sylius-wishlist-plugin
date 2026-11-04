@@ -1,0 +1,4 @@
+bwlab_wishlist:
+    admin:
+        settings:
+            min_one_day: The lifetime must be at least 1 day.

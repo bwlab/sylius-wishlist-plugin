@@ -1,6 +1,23 @@
-# admin services of the wishlist plugin. Service ids: bwlab_wishlist.admin.<name>.
+# admin services of the wishlist plugin: autowired and autoconfigured from attributes (#[AsCommand], #[AutoconfigureTag], #[Autowire]).
 services:
     _defaults:
         autowire: true
         autoconfigure: true
         public: false
+
+    Bwlab\SyliusWishlistPlugin\Menu\:
+        resource: '../../src/Menu/'
+
+    Bwlab\SyliusWishlistPlugin\Form\Type\:
+        resource: '../../src/Form/Type/'
+
+    Bwlab\SyliusWishlistPlugin\Controller\Admin\:
+        resource: '../../src/Controller/Admin/'
+        tags: ['controller.service_arguments']
+
+    Bwlab\SyliusWishlistPlugin\Command\:
+        resource: '../../src/Command/'
+
+    Bwlab\SyliusWishlistPlugin\Purge\:
+        resource: '../../src/Purge/'
+        exclude: '../../src/Purge/PurgeResult.php'

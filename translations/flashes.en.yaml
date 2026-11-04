@@ -2,3 +2,5 @@ bwlab_wishlist:
     item_added: The product has been added to your wishlist.
     item_already_present: The product is already in your wishlist.
     item_removed: The product has been removed from your wishlist.
+    admin:
+        settings_saved: Wishlist settings saved.
