@@ -1,6 +1,10 @@
-# api services of the wishlist plugin. Service ids: bwlab_wishlist.api.<name>.
+# api services of the wishlist plugin: autowired by attributes, service id = class name.
 services:
     _defaults:
         autowire: true
         autoconfigure: true
         public: false
+
+    Bwlab\SyliusWishlistPlugin\Api\:
+        resource: '../../src/Api/'
+        exclude: '../../src/Api/{Resource,Input,Output}'

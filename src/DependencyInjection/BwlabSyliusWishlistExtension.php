@@ -44,6 +44,11 @@ final class BwlabSyliusWishlistExtension extends Extension implements PrependExt
             ],
         ]);
 
+        // API Platform resources of the plugin (PHP attributes on DTOs in src/Api/Resource).
+        $container->prependExtensionConfig('api_platform', [
+            'mapping' => ['paths' => [\dirname(__DIR__) . '/Api/Resource']],
+        ]);
+
         $this->prependDoctrineMigrations($container);
     }
 
