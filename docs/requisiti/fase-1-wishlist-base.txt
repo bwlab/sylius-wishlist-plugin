@@ -1,0 +1,191 @@
+Stage 1 — Basic Wishlist (MVP)
+Task Type: Story​
+Title: Implement Basic Product Wishlist Functionality
+
+
+Description
+As a customer, I want to save products to a personal wishlist so that I can easily find them
+later and add them to my shopping cart when I'm ready to purchase.
+
+The wishlist must be available to both authenticated customers and guests.
+
+Customers should be able to add products to their wishlist directly from the Product Detail
+Page (PDP) and Product Listing Page (PLP), view their saved products, remove products,
+and add one or multiple wishlist products to their shopping cart.
+
+The wishlist should work independently of the shopping cart. Adding or removing products
+from the wishlist must not automatically affect the cart.
+
+
+Gherkin Scenarios
+Scenario 1 — Add a product to the wishlist from PDP
+
+  None‎
+  Given I am browsing a product detail page
+  When I click the "Add to Wishlist" button
+  Then the product should be added to my wishlist
+  And I should see a confirmation that the product was added
+
+
+Scenario 2 — Add a product to the wishlist from PLP
+
+  None‎
+  Given I am browsing a product listing page
+  When I click the "Add to Wishlist" button for a product
+  Then the selected product should be added to my wishlist
+  And I should see a confirmation that the product was added
+
+
+Scenario 3 — Prevent duplicate wishlist entries
+
+  None‎
+  Given a product is already in my wishlist
+ When I attempt to add the same product again
+ Then the product should not be duplicated
+ And my wishlist should contain only one entry for that product
+
+
+Scenario 4 — Guest customer wishlist
+
+ None‎
+ Given I am browsing the store as a guest
+ When I add a product to my wishlist
+ Then the product should be saved in my guest wishlist
+ And I should be able to access it while browsing the store
+ And my wishlist should remain available after refreshing the page
+
+
+Scenario 5 — Authenticated customer wishlist
+
+ None‎
+ Given I am logged in as a customer
+ And I have added products to my wishlist
+ When I log out and log in again
+ Then my previously saved wishlist products should still be
+ available
+
+
+Scenario 6 — View wishlist contents
+
+ None‎
+ Given I have added multiple products to my wishlist
+ When I navigate to my wishlist page
+ Then I should see all products saved in my wishlist
+ And each product should display its name, image, and current
+ price
+ And each product should have an option to remove it
+ And each product should have an option to add it to my cart
+
+
+Scenario 7 — Display an empty wishlist
+
+ None‎
+ Given my wishlist does not contain any products
+ When I navigate to my wishlist page
+ Then I should see an appropriate empty wishlist message
+ And I should be able to continue shopping
+
+
+Scenario 8 — Remove a product from the wishlist
+
+ None‎
+ Given my wishlist contains multiple products
+ When I remove one of the products
+ Then the selected product should disappear from my wishlist
+ And all other wishlist products should remain unchanged
+
+
+Scenario 9 — Add a single wishlist product to the cart
+
+ None‎
+ Given my wishlist contains a product available for purchase
+ When I click "Add to Cart" for that product
+ Then the selected product should be added to my shopping cart
+ And the product should remain in my wishlist
+ And the shopping cart should reflect the newly added product
+
+
+Scenario 10 — Add multiple wishlist products to the cart
+
+ None‎
+ Given my wishlist contains multiple products available for
+ purchase
+ And I have selected two or more products
+ When I click "Add Selected to Cart"
+ Then all selected products should be added to my shopping cart
+ And products that were not selected should not be added
+ And all products should remain in my wishlist
+
+
+Scenario 11 — Handle a product unavailable for purchase
+
+ None‎
+ Given my wishlist contains a product that is no longer available
+ for purchase
+ When I view my wishlist
+ Then the product should remain visible in my wishlist
+ And I should not be able to add the unavailable product to my
+ cart
+  And I should see an indication that the product is unavailable
+
+
+
+User Acceptance Criteria
+   ●​   Customers can add products to their wishlist from both PDP and PLP.
+   ●​   Wishlist functionality is available to authenticated customers and guests.
+   ●​   Guest wishlists survive page refreshes within the same browser.
+   ●​   Authenticated customer wishlists persist between login sessions.
+   ●​   Adding the same product multiple times does not create duplicate entries.
+   ●​   Customers can access a dedicated wishlist page.
+   ●​   The wishlist page displays each product's name, image, and current price.
+   ●​   Customers can remove individual products from their wishlist.
+   ●​   An empty wishlist displays an appropriate message.
+   ●​   Customers can add a single product from their wishlist to their cart.
+   ●​   Customers can select multiple wishlist products and add them to their cart in one
+        action.
+   ●​   Adding products to the cart does not automatically remove them from the wishlist.
+   ●​   Products unavailable for purchase remain visible but cannot be added to the cart.
+   ●​   Wishlist operations do not unexpectedly modify existing cart contents.
+   ●​   The complete functionality can be demonstrated through the storefront UI.
+
+
+Technical Details
+The implementation is technology-independent. Participants are free to choose their
+architecture, persistence strategy, and UI approach.
+
+The following are suggestions rather than mandatory requirements.
+
+Guest wishlist persistence
+
+Consider using cookies or browser storage to identify or maintain a guest wishlist. A
+server-side wishlist associated with an anonymous identifier is also acceptable.
+
+Authenticated wishlist persistence
+
+Consider storing wishlists in persistent storage and associating them with customer
+accounts.
+
+Product and variant handling
+
+Both Sylius and PrestaShop support product variants or combinations. Participants should
+use a consistent approach when deciding whether wishlist entries represent products or
+specific purchasable variants.
+Cart integration
+
+Use the platform's existing cart functionality rather than implementing a separate shopping
+cart.
+
+Existing cart validation rules, including product availability, should remain respected.
+
+Frontend implementation
+
+AJAX, asynchronous updates, and dynamic wishlist counters are welcome but not required.
+Traditional form submissions and page reloads are acceptable.
+
+Testing
+
+Automated tests are welcome but not required for the hackathon.
+
+The functionality will be evaluated through a live demonstration against the acceptance
+criteria.
+

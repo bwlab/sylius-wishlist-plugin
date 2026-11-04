@@ -1,0 +1,242 @@
+PS-Summit Hackathon 2026
+Rules & Guidelines
+Welcome to the Hackathon!
+
+This hackathon is about learning, experimenting, collaborating, and having fun.
+
+We're bringing together developers from the Sylius and PrestaShop communities to explore
+how quickly they can build real e-commerce functionality using two different frameworks.
+
+This is not Sylius vs. PrestaShop.
+
+We're not here to prove which framework is better, faster, or more powerful. Both have their
+own strengths, architectures, and approaches.
+
+Instead, we want to explore how easily developers can get started, extend existing
+functionality, and build something useful.
+
+There are no winners or losers. Everyone who participates is part of the experience!
+
+
+
+
+1. Teams & Collaboration
+Participants will be divided into teams, each working with either Sylius or PrestaShop.
+
+Every team must appoint one Team Captain.
+
+The Team Captain is responsible for coordinating the team's work, communicating with the
+organizers, and presenting completed tasks.
+
+Team members are encouraged to collaborate, share ideas, experiment, and help one
+another.
+
+You don't need to be an expert in your assigned framework. Learning something new is part
+of the challenge!
+
+
+2. The Challenge
+Your mission is to build a fully functional Wishlist Plugin / Module for your assigned
+e-commerce platform.
+
+Both Sylius and PrestaShop teams will receive the same functional requirements.
+The implementation must be developed as:
+
+   ●​ A Sylius Plugin, for Sylius teams.
+   ●​ A PrestaShop Module, for PrestaShop teams.
+
+The solution must be reusable and independently installable into an existing project.
+
+Modifying the core framework or building functionality that works only inside the provided
+starter project is not considered a complete solution.
+
+
+3. Four Stages — One Evolving Plugin
+The hackathon consists of four consecutive stages.
+
+Teams start with Stage 1.
+
+The next stage is unlocked only after the current stage has been completed and
+accepted by an organizer.
+
+Each stage builds upon the previous implementation.
+
+The goal is to complete all four stages before the hackathon ends.
+
+Completing fewer stages is absolutely fine — the purpose is to learn and enjoy the process.
+
+
+4. How to Complete a Stage
+Each stage comes with a task description, Gherkin scenarios, and User Acceptance Criteria.
+
+When your team believes a stage is complete:
+
+   1.​ Make sure your latest implementation is committed and pushed to your team's
+       GitHub repository.
+   2.​ Ask an organizer to review your work.
+   3.​ The Team Captain, or another nominated team member, demonstrates the
+       functionality using the running application.
+   4.​ The organizer verifies the functionality against the task's User Acceptance Criteria.
+   5.​ Once accepted, the team receives the next stage.
+
+Evaluation is based on a working live demonstration, not a code review.
+
+The organizer may ask you to demonstrate specific scenarios or edge cases from the task
+description.
+
+If something doesn't work, that's fine! Fix it and request another review.
+
+
+5. GitHub Repository
+Every team must publish its implementation in a GitHub repository.
+
+The repository must contain the actual reusable Sylius plugin or PrestaShop module.
+
+Your final implementation must be pushed before the end of the hackathon.
+
+Teams may organize their repository and development workflow however they prefer.
+
+Branches, pull requests, and commit conventions are up to the team.
+
+A README explaining how to install and use the plugin/module is highly encouraged.
+
+
+6. Backward Compatibility & Upgrades
+This is one of the most important technical rules.
+
+Every new stage must extend the existing plugin/module without breaking previously
+implemented functionality.
+
+Imagine that your solution is already installed in a real e-commerce store.
+
+When you release Stage 2, Stage 3, or Stage 4, the store owner should be able to update
+the existing plugin/module rather than reinstalling everything from scratch.
+
+This means:
+
+   ●​ Existing wishlist data should be preserved.
+   ●​ Previously completed functionality must continue working.
+   ●​ Database schema changes should be handled through appropriate migrations or
+      upgrade mechanisms.
+   ●​ Existing installations should not require manual data deletion or a fresh database.
+   ●​ Each new stage should be demonstrable on an updated installation.
+
+You are free to refactor your implementation as needed, provided that upgrading does not
+introduce breaking changes.
+
+Think of each stage as a new version of a real plugin/module.
+
+A short README describing installation and upgrade steps is highly appreciated.
+
+
+7. AI Is Welcome!
+AI-assisted development is not only allowed — it's encouraged!
+
+Use any AI tools you like to help with:
+
+   ●​ Understanding the framework.
+   ●​ Exploring documentation.
+   ●​ Designing your solution.
+   ●​   Generating or refactoring code.
+   ●​   Debugging problems.
+   ●​   Creating tests.
+   ●​   Writing documentation.
+
+There are no restrictions on using AI coding assistants.
+
+You can also use official documentation, open-source libraries, community resources, and
+existing code examples.
+
+The objective is to build working functionality and learn along the way, not to prove who can
+type code fastest.
+
+Just make sure your team understands the solution well enough to demonstrate and
+maintain it.
+
+
+8. Technology & Implementation
+Teams are free to choose their implementation approach.
+
+There is no mandatory architecture, coding style, or design pattern.
+
+However:
+
+   ●​ The solution must use the assigned framework.
+   ●​ It must be packaged as an installable plugin or module.
+   ●​ It must integrate with the platform's existing storefront, administration, and cart
+      functionality where appropriate.
+   ●​ It must satisfy the functional requirements of the current stage.
+   ●​ It must preserve compatibility with previously completed stages.
+
+Traditional form submissions are perfectly acceptable. AJAX, dynamic interfaces, and
+advanced frontend enhancements are optional unless explicitly required by a task.
+
+Automated tests are welcome but not mandatory.
+
+We care more about working functionality than architectural perfection.
+
+
+9. Demonstration & Acceptance
+The live demonstration is the primary way to complete a stage.
+
+The organizer will focus on:
+
+   ●​ Whether the required functionality works.
+   ●​ Whether the User Acceptance Criteria are satisfied.
+   ●​ Whether previous stages continue working.
+   ●​ Whether the functionality is part of the plugin/module rather than hardcoded into the
+      starter application.
+   ●​ Whether the application remains usable after updates.
+
+A beautiful user interface is not required.
+
+A simple and functional solution is completely acceptable.
+
+You do not need to prepare a formal presentation.
+
+Just show us what you've built!
+
+
+10. Schedule
+Hackathon: 14:00–18:00
+
+You have four hours to work through the challenges.
+
+Coffee and refreshments will be available between 16:00 and 16:30.
+
+There is no mandatory coffee break. Teams can take breaks whenever they need them.
+
+The hackathon ends at 18:00, so make sure your final changes are pushed to GitHub before
+then.
+
+
+11. No Competition, No Rankings
+There is no leaderboard, no framework ranking, and no grand prize for the fastest team.
+
+We won't compare Sylius and PrestaShop based on how many tasks their teams complete.
+
+Different teams have different experience levels, and that's absolutely fine.
+
+Everyone will receive some small goodies, such as stickers and other community
+merchandise.
+
+The real reward is the experience: discovering a new framework, collaborating with fellow
+developers, and building something together.
+
+Help each other. Share knowledge. Have fun.
+
+
+
+
+Final Goal
+By the end of the hackathon, each team should have a GitHub repository containing a
+reusable wishlist plugin or module, implementing as many of the four stages as possible.
+Ideally, the solution should be installable, upgradeable, and ready to demonstrate.
+
+But remember:
+
+This isn't about proving which framework is better. It's about discovering what we can
+build together in four hours.
+
+Happy hacking!
+
