@@ -112,6 +112,13 @@ $added = $modifier->addVariant($wishlist, $variant, 1, WishlistItemInterface::SO
 $wishlistRepository->add($wishlist);
 ```
 
+## Prezzo al salvataggio (0.2.1)
+
+- `WishlistItem::priceAtAdd` (int, unità minori) e `currencyCode` (3 lettere), entrambi nullable; migration `Version20261104170000` solo additiva (down toglie le colonne). Righe pre-0.2.1: null, nessun backfill.
+- Un solo punto di scrittura: `WishlistItemModifier::addVariant` legge `ProductVariantPricesCalculatorInterface::calculate()` sul canale della wishlist (stesso prezzo mostrato dalla pagina). Canale senza prezzo (`MissingChannelConfigurationException`) → null.
+- `moveItem` senza duplicato non tocca il prezzo; con duplicato e login merge passano da `WishlistItemModifier::absorb`: vince il prezzo della riga più vecchia (anche se null). `changeQuantity` non lo tocca.
+- API (negozio e admin): `priceAtAdd`, `priceAtAddCurrencyCode` (`currencyCode` resta la valuta del prezzo attuale). Pannello cliente: colonne «Prezzo al salvataggio» / «Prezzo attuale» con badge sceso/salito (`ItemView::priceTrend`, solo se stessa valuta).
+
 ## Test
 
 `tests/Unit/` (PHPUnit). Dallo shop: `vendor/bin/phpunit --bootstrap vendor/autoload.php plugins/sylius-wishlist-plugin/tests/Unit`.

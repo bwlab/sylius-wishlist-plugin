@@ -74,6 +74,10 @@ bwlab_wishlist:
                 quantity: Quantità
                 added_at: Inserito il
                 source: Salvato da
+                price_at_add: Prezzo al salvataggio
+                price_now: Prezzo attuale
+                price_dropped: Sceso
+                price_rose: Salito
                 availability: Disponibilità
                 source_pdp: Pagina prodotto
                 source_plp: Lista prodotti

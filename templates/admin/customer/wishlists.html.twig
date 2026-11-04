@@ -40,6 +40,8 @@
                                             <th class="w-1"></th>
                                             <th>{{ 'bwlab_wishlist.ui.admin.customer.product'|trans }}</th>
                                             <th class="text-center">{{ 'bwlab_wishlist.ui.admin.customer.quantity'|trans }}</th>
+                                            <th>{{ 'bwlab_wishlist.ui.admin.customer.price_at_add'|trans }}</th>
+                                            <th>{{ 'bwlab_wishlist.ui.admin.customer.price_now'|trans }}</th>
                                             <th>{{ 'bwlab_wishlist.ui.admin.customer.added_at'|trans }}</th>
                                             <th>{{ 'bwlab_wishlist.ui.admin.customer.source'|trans }}</th>
                                             <th>{{ 'bwlab_wishlist.ui.admin.customer.availability'|trans }}</th>
@@ -63,6 +65,17 @@
                                                     <div class="text-secondary small">{{ variant.name ?: variant.code }}</div>
                                                 </td>
                                                 <td class="text-center">{{ row.item.quantity }}</td>
+                                                {% set base_currency = group.channel.baseCurrency.code %}
+                                                {% set trend = row.priceTrend(base_currency) %}
+                                                <td>{{ row.item.priceAtAdd is not null ? row.item.priceAtAdd|sylius_format_money(row.item.currencyCode, app.request.locale) : '—' }}</td>
+                                                <td>
+                                                    {{ row.currentPrice is not null ? row.currentPrice|sylius_format_money(base_currency, app.request.locale) : '—' }}
+                                                    {% if trend is same as(-1) %}
+                                                        <span class="badge bg-green-lt ms-1">{{ ux_icon('tabler:arrow-down', {class: 'icon'}) }}{{ 'bwlab_wishlist.ui.admin.customer.price_dropped'|trans }}</span>
+                                                    {% elseif trend is same as(1) %}
+                                                        <span class="badge bg-red-lt ms-1">{{ ux_icon('tabler:arrow-up', {class: 'icon'}) }}{{ 'bwlab_wishlist.ui.admin.customer.price_rose'|trans }}</span>
+                                                    {% endif %}
+                                                </td>
                                                 <td>{{ row.item.addedAt|date('d-m-Y H:i') }}</td>
                                                 <td>{{ ('bwlab_wishlist.ui.admin.customer.source_' ~ row.item.source)|trans }}</td>
                                                 <td>

@@ -10,7 +10,11 @@ use Bwlab\SyliusWishlistPlugin\Entity\WishlistItemInterface;
 use Bwlab\SyliusWishlistPlugin\Modifier\WishlistItemModifier;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Sylius\Component\Core\Calculator\ProductVariantPricesCalculatorInterface;
+use Sylius\Component\Core\Exception\MissingChannelConfigurationException;
+use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
+use Sylius\Component\Currency\Model\CurrencyInterface;
 use Sylius\Resource\Factory\FactoryInterface;
 
 final class WishlistItemModifierTest extends TestCase
@@ -21,14 +25,17 @@ final class WishlistItemModifierTest extends TestCase
 
     private Wishlist $wishlist;
 
+    private ProductVariantPricesCalculatorInterface $calculator;
+
     protected function setUp(): void
     {
         $this->now = new \DateTimeImmutable('2026-03-15 10:00:00');
 
+        $this->calculator = $this->createStub(ProductVariantPricesCalculatorInterface::class);
         $factory = $this->createStub(FactoryInterface::class);
         $factory->method('createNew')->willReturnCallback(static fn (): WishlistItem => new WishlistItem());
 
-        $this->modifier = new WishlistItemModifier($factory, fn (): \DateTimeImmutable => $this->now);
+        $this->modifier = new WishlistItemModifier($factory, $this->calculator, fn (): \DateTimeImmutable => $this->now);
         $this->wishlist = new Wishlist();
     }
 
@@ -140,5 +147,56 @@ final class WishlistItemModifierTest extends TestCase
         } finally {
             self::assertSame(0, $this->wishlist->countItems());
         }
+    }
+
+    private function wishlistInChannel(): void
+    {
+        $currency = $this->createStub(CurrencyInterface::class);
+        $currency->method('getCode')->willReturn('EUR');
+        $channel = $this->createStub(ChannelInterface::class);
+        $channel->method('getBaseCurrency')->willReturn($currency);
+        $this->wishlist->setChannel($channel);
+    }
+
+    #[Test]
+    public function it_records_the_channel_price_and_currency_when_saving(): void
+    {
+        $this->wishlistInChannel();
+        $this->calculator->method('calculate')->willReturn(1990);
+        $variant = $this->createStub(ProductVariantInterface::class);
+
+        $this->modifier->addVariant($this->wishlist, $variant);
+
+        $item = $this->wishlist->getItemForVariant($variant);
+        self::assertSame(1990, $item?->getPriceAtAdd());
+        self::assertSame('EUR', $item?->getCurrencyCode());
+    }
+
+    #[Test]
+    public function it_leaves_the_price_null_when_the_channel_has_none(): void
+    {
+        $this->wishlistInChannel();
+        $this->calculator->method('calculate')->willThrowException(new MissingChannelConfigurationException('no price'));
+        $variant = $this->createStub(ProductVariantInterface::class);
+
+        self::assertTrue($this->modifier->addVariant($this->wishlist, $variant));
+
+        $item = $this->wishlist->getItemForVariant($variant);
+        self::assertNull($item?->getPriceAtAdd());
+        self::assertNull($item?->getCurrencyCode());
+    }
+
+    #[Test]
+    public function changing_the_quantity_does_not_touch_the_price(): void
+    {
+        $this->wishlistInChannel();
+        $this->calculator->method('calculate')->willReturn(1990);
+        $variant = $this->createStub(ProductVariantInterface::class);
+        $this->modifier->addVariant($this->wishlist, $variant);
+        $item = $this->wishlist->getItemForVariant($variant);
+
+        $this->modifier->changeQuantity($item, 4);
+
+        self::assertSame(1990, $item->getPriceAtAdd());
     }
 }

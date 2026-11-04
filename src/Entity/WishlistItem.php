@@ -34,6 +34,13 @@ class WishlistItem implements WishlistItemInterface
     #[ORM\Column(name: 'source', type: 'string', length: 16)]
     protected string $source = self::SOURCE_PDP;
 
+    /** Channel price (minor units) when the row was saved; null for rows saved before 0.2.1 or without a channel price. */
+    #[ORM\Column(name: 'price_at_add', type: 'integer', nullable: true)]
+    protected ?int $priceAtAdd = null;
+
+    #[ORM\Column(name: 'currency_code', type: 'string', length: 3, nullable: true)]
+    protected ?string $currencyCode = null;
+
     public function __construct()
     {
         $this->addedAt = new \DateTimeImmutable();
@@ -98,5 +105,21 @@ class WishlistItem implements WishlistItemInterface
             throw new \InvalidArgumentException(sprintf('Unknown wishlist item source "%s".', $source));
         }
         $this->source = $source;
+    }
+
+    public function getPriceAtAdd(): ?int
+    {
+        return $this->priceAtAdd;
+    }
+
+    public function getCurrencyCode(): ?string
+    {
+        return $this->currencyCode;
+    }
+
+    public function setPriceAtAdd(?int $priceAtAdd, ?string $currencyCode): void
+    {
+        $this->priceAtAdd = $priceAtAdd;
+        $this->currencyCode = null === $priceAtAdd ? null : $currencyCode;
     }
 }
