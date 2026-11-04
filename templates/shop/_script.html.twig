@@ -90,7 +90,8 @@
     var saving = false;
 
     function save(button, url, data, fallback) {
-        if (saving || !setBusy(button, button.dataset.savingLabel || '')) { return; }
+        if (saving) { toast('info', {{ 'bwlab_wishlist.ui.shop.wait_saving'|trans|json_encode|raw }}); return; }
+        if (!setBusy(button, button.dataset.savingLabel || '')) { return; }
         saving = true;
         var scope = button.closest('[data-bwlab-wishlist-box]');
         fetch(url, {

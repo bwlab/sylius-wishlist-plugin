@@ -23,6 +23,7 @@ bwlab_wishlist:
             select_item: Seleziona questo prodotto
             choose_variant: Scegli le opzioni
             choose_variant_hint: Scegli le opzioni del prodotto, poi aggiungilo alla wishlist.
+            wait_saving: "Attendi un istante: un altro prodotto è in salvataggio."
             saving: Salvataggio…
             saved: Nella wishlist
             adding_to_cart: Aggiunta al carrello…
