@@ -9,7 +9,7 @@
     {% set return_to = app.request.requestUri %}
     {% set purchasable_count = rows|filter(r => r.availability.purchasable)|length %}
 
-    <div class="mt-5 mb-5" data-test-bwlab-wishlist-page>
+    <div class="container mt-5 mb-5" data-test-bwlab-wishlist-page>
         <h1 class="h2 mb-4">{{ 'bwlab_wishlist.ui.shop.title'|trans }}</h1>
 
         {% if rows is empty %}

@@ -3,6 +3,6 @@
 {% set shows_cart_form = not (product.enabledVariants.empty() or product.simple and not sylius_inventory_is_available(product.enabledVariants.first)) %}
 {% if not shows_cart_form and not product.variants.empty() %}
     <div class="mb-3">
-        {% include '@BwlabSyliusWishlistPlugin/shop/_save_form.html.twig' with {variant: product.variants.first, source: 'pdp'} only %}
+        {% include '@BwlabSyliusWishlistPlugin/shop/_save_form.html.twig' with {variant: product.variants.first, source: 'pdp', return_to: path('sylius_shop_product_show', {slug: product.slug})} only %}
     </div>
 {% endif %}
