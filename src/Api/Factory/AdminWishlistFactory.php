@@ -14,7 +14,8 @@ final class AdminWishlistFactory
     {
     }
 
-    public function create(WishlistInterface $wishlist, bool $withItems): AdminWishlist
+    /** @param int|null $itemsCount precomputed count (list): avoids loading the rows of every wishlist */
+    public function create(WishlistInterface $wishlist, bool $withItems, ?int $itemsCount = null): AdminWishlist
     {
         $view = new AdminWishlist();
         $view->id = $wishlist->getId();
@@ -27,7 +28,7 @@ final class AdminWishlistFactory
         $view->createdAt = $wishlist->getCreatedAt() ? \DateTimeImmutable::createFromInterface($wishlist->getCreatedAt()) : null;
         $view->updatedAt = $wishlist->getUpdatedAt() ? \DateTimeImmutable::createFromInterface($wishlist->getUpdatedAt()) : null;
         $view->lastSeenAt = $wishlist->getLastSeenAt();
-        $view->itemsCount = $wishlist->countItems();
+        $view->itemsCount = $itemsCount ?? $wishlist->countItems();
         if ($withItems) {
             foreach ($wishlist->getItems() as $item) {
                 $view->items[] = $this->itemFactory->adminItem($item);

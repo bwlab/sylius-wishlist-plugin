@@ -8,9 +8,14 @@ use Bwlab\SyliusWishlistPlugin\Api\Output\AddWishlistToCartResult;
 use Bwlab\SyliusWishlistPlugin\Checker\VariantAvailabilityCheckerInterface;
 use Bwlab\SyliusWishlistPlugin\Entity\WishlistInterface;
 use Bwlab\SyliusWishlistPlugin\Entity\WishlistItemInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Sylius\Bundle\ApiBundle\Command\Cart\AddItemToCart;
+use Sylius\Bundle\ApiBundle\Context\UserContextInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Core\Model\ShopUserInterface;
 use Sylius\Component\Core\Repository\OrderRepositoryInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -34,6 +39,9 @@ final class WishlistCartAdder
         private readonly ValidatorInterface $validator,
         #[Autowire(service: 'sylius.command_bus')]
         private readonly MessageBusInterface $commandBus,
+        private readonly UserContextInterface $userContext,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly LoggerInterface $logger = new NullLogger(),
     ) {
     }
 
@@ -45,6 +53,8 @@ final class WishlistCartAdder
         if (null === $cart) {
             throw new NotFoundHttpException('Cart not found.');
         }
+        // Same ownership rule as AddItemToCartHandler, checked up front: it must hold even when no row is dispatched.
+        $this->assertCartAccessible($cart);
 
         $added = [];
         $skipped = [];
@@ -72,11 +82,24 @@ final class WishlistCartAdder
             try {
                 $this->commandBus->dispatch($command);
             } catch (HandlerFailedException $exception) {
-                $cause = $exception->getPrevious();
-                if ($cause instanceof HttpException) {
-                    throw $cause; // e.g. the cart belongs to another customer: 404
+                $cause = $exception->getPrevious() ?? $exception;
+                if ($cause instanceof NotFoundHttpException) {
+                    throw $cause;
                 }
-                $skipped[] = ['itemId' => $itemId, 'variantCode' => $code, 'reason' => 'rejected', 'message' => $cause?->getMessage()];
+                if ($cause instanceof HttpException) { // known ApiBundle rule (e.g. unprocessable variant): safe to show
+                    $skipped[] = ['itemId' => $itemId, 'variantCode' => $code, 'reason' => 'rejected', 'message' => $cause->getMessage()];
+
+                    continue;
+                }
+
+                // Unknown failure: log it, never show its message. The cart may be dirty in memory: reload it,
+                // and if the EntityManager is closed stop (the caller gets a 500 instead of a half-saved cart).
+                $this->logger->error('Wishlist add-to-cart failed.', ['exception' => $cause, 'variant' => $code]);
+                if (!$this->entityManager->isOpen()) {
+                    throw $cause;
+                }
+                $this->entityManager->refresh($cart);
+                $skipped[] = ['itemId' => $itemId, 'variantCode' => $code, 'reason' => 'rejected', 'message' => null];
 
                 continue;
             }
@@ -85,6 +108,25 @@ final class WishlistCartAdder
         }
 
         return new AddWishlistToCartResult($cartToken, $added, $skipped);
+    }
+
+    private function assertCartAccessible(OrderInterface $cart): void
+    {
+        if ($cart->isCreatedByGuest()) {
+            return;
+        }
+
+        $cartCustomer = $cart->getCustomer();
+        if (null === $cartCustomer || null === $cartCustomer->getUser()) {
+            return;
+        }
+
+        $currentUser = $this->userContext->getUser();
+        if ($currentUser instanceof ShopUserInterface && $currentUser->getCustomer()?->getId() === $cartCustomer->getId()) {
+            return;
+        }
+
+        throw new NotFoundHttpException('Cart not found.');
     }
 
     /**

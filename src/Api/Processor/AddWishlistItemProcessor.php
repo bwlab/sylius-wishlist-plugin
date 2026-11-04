@@ -15,10 +15,12 @@ use Bwlab\SyliusWishlistPlugin\Entity\WishlistItemInterface;
 use Bwlab\SyliusWishlistPlugin\Modifier\WishlistItemModifierInterface;
 use Bwlab\SyliusWishlistPlugin\Repository\WishlistRepositoryInterface;
 use Bwlab\SyliusWishlistPlugin\Resolver\CurrentWishlistResolverInterface;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Component\Core\Repository\ProductVariantRepositoryInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /** @implements ProcessorInterface<AddWishlistItem, ShopWishlistItem> */
@@ -51,7 +53,12 @@ final class AddWishlistItemProcessor implements ProcessorInterface
 
         $wishlist = $this->resolver->getOrCreate();
         $this->modifier->addVariant($wishlist, $variant, $data->quantity, WishlistItemInterface::SOURCE_API);
-        $this->wishlistRepository->add($wishlist);
+        try {
+            $this->wishlistRepository->add($wishlist);
+        } catch (UniqueConstraintViolationException) {
+            // Two parallel first saves of the same owner: the loser's EntityManager is closed by Doctrine, so no retry here.
+            throw new ConflictHttpException('The wishlist was created by a concurrent request: retry.');
+        }
 
         $item = $wishlist->getItemForVariant($variant);
         \assert($item instanceof WishlistItemInterface);

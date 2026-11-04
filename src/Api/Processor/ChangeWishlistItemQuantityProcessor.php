@@ -28,7 +28,7 @@ final class ChangeWishlistItemQuantityProcessor implements ProcessorInterface
     {
         /** @var ChangeWishlistItemQuantity $data */
         $item = $this->finder->find((int) $uriVariables['id']);
-        $this->modifier->changeQuantity($item, $data->quantity);
+        $this->modifier->changeQuantity($item, (int) $data->quantity);
         $this->wishlistRepository->add($this->finder->wishlist());
 
         return $this->viewFactory->shopItem($item);

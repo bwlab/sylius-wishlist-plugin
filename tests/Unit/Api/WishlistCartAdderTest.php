@@ -9,7 +9,11 @@ use Bwlab\SyliusWishlistPlugin\Checker\VariantAvailabilityCheckerInterface;
 use Bwlab\SyliusWishlistPlugin\Checker\WishlistAvailability;
 use Bwlab\SyliusWishlistPlugin\Entity\Wishlist;
 use Bwlab\SyliusWishlistPlugin\Entity\WishlistItem;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use Sylius\Bundle\ApiBundle\Context\UserContextInterface;
+use Sylius\Component\Core\Model\CustomerInterface;
+use Sylius\Component\Core\Model\ShopUserInterface;
 use Sylius\Bundle\ApiBundle\Command\Cart\AddItemToCart;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\OrderInterface;
@@ -17,6 +21,7 @@ use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Component\Core\Repository\OrderRepositoryInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -26,6 +31,8 @@ final class WishlistCartAdderTest extends TestCase
 {
     private ChannelInterface $channel;
 
+    private UserContextInterface $userContext;
+
     /** @var list<object> */
     private array $dispatched = [];
 
@@ -33,6 +40,7 @@ final class WishlistCartAdderTest extends TestCase
     {
         $this->channel = $this->createStub(ChannelInterface::class);
         $this->dispatched = [];
+        $this->userContext = $this->createStub(UserContextInterface::class);
     }
 
     /** @param array<string, WishlistAvailability> $availability variant code => status */
@@ -56,7 +64,10 @@ final class WishlistCartAdderTest extends TestCase
             return new Envelope($message);
         });
 
-        return new WishlistCartAdder($orders, $checker, $validator, $bus);
+        $em = $this->createStub(EntityManagerInterface::class);
+        $em->method('isOpen')->willReturn(true);
+
+        return new WishlistCartAdder($orders, $checker, $validator, $bus, $this->userContext, $em);
     }
 
     private function wishlist(): Wishlist
@@ -111,5 +122,70 @@ final class WishlistCartAdderTest extends TestCase
     {
         $this->expectException(NotFoundHttpException::class);
         $this->adder([], false)->add($this->wishlist(), $this->channel, 'nope', null);
+    }
+
+    public function testCartOfAnotherCustomerIsNotFoundEvenWhenNothingIsDispatched(): void
+    {
+        $owner = $this->createStub(CustomerInterface::class);
+        $owner->method('getId')->willReturn(1);
+        $owner->method('getUser')->willReturn($this->createStub(ShopUserInterface::class));
+        $cart = $this->createStub(OrderInterface::class);
+        $cart->method('isCreatedByGuest')->willReturn(false);
+        $cart->method('getCustomer')->willReturn($owner);
+
+        $orders = $this->createStub(OrderRepositoryInterface::class);
+        $orders->method('findCartByTokenValueAndChannel')->willReturn($cart);
+
+        $intruderCustomer = $this->createStub(CustomerInterface::class);
+        $intruderCustomer->method('getId')->willReturn(2);
+        $intruder = $this->createStub(ShopUserInterface::class);
+        $intruder->method('getCustomer')->willReturn($intruderCustomer);
+        $this->userContext->method('getUser')->willReturn($intruder);
+
+        $em = $this->createStub(EntityManagerInterface::class);
+        $adder = new WishlistCartAdder($orders, $this->createStub(VariantAvailabilityCheckerInterface::class), $this->createStub(ValidatorInterface::class), $this->createStub(MessageBusInterface::class), $this->userContext, $em);
+
+        $this->expectException(NotFoundHttpException::class);
+        $adder->add($this->wishlist(), $this->channel, 'cart', [99]); // unknown ids: nothing dispatched
+    }
+
+    private function adderWithFailingBus(\Throwable $failure, bool $emOpen, EntityManagerInterface $em): WishlistCartAdder
+    {
+        $orders = $this->createStub(OrderRepositoryInterface::class);
+        $orders->method('findCartByTokenValueAndChannel')->willReturn($this->createStub(OrderInterface::class));
+        $checker = $this->createStub(VariantAvailabilityCheckerInterface::class);
+        $checker->method('check')->willReturn(WishlistAvailability::Available);
+        $validator = $this->createStub(ValidatorInterface::class);
+        $validator->method('validate')->willReturn(new ConstraintViolationList());
+        $bus = $this->createStub(MessageBusInterface::class);
+        $bus->method('dispatch')->willThrowException(new HandlerFailedException(new Envelope(new \stdClass()), [$failure]));
+
+        return new WishlistCartAdder($orders, $checker, $validator, $bus, $this->userContext, $em);
+    }
+
+    public function testUnknownFailureIsNotShownAndTheCartIsReloaded(): void
+    {
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('isOpen')->willReturn(true);
+        $em->expects(self::exactly(3))->method('refresh');
+
+        $result = $this->adderWithFailingBus(new \RuntimeException('SQLSTATE secret'), true, $em)
+            ->add($this->wishlist(), $this->channel, 'cart', null);
+
+        self::assertSame([], $result->added);
+        self::assertCount(3, $result->skipped);
+        foreach ($result->skipped as $skipped) {
+            self::assertSame('rejected', $skipped['reason']);
+            self::assertNull($skipped['message']);
+        }
+    }
+
+    public function testClosedEntityManagerStopsTheRequest(): void
+    {
+        $em = $this->createStub(EntityManagerInterface::class);
+        $em->method('isOpen')->willReturn(false);
+
+        $this->expectException(\RuntimeException::class);
+        $this->adderWithFailingBus(new \RuntimeException('boom'), false, $em)->add($this->wishlist(), $this->channel, 'cart', null);
     }
 }
