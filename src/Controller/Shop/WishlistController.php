@@ -294,11 +294,24 @@ final class WishlistController extends AbstractController
         }
 
         $channel = $this->channel();
-        $items = array_values(array_filter(
-            $this->listFromRequest($request)?->getItems()->toArray() ?? [],
-            fn (WishlistItemInterface $item): bool => null !== $item->getVariant()
-                && $this->availabilityChecker->check($item->getVariant(), $channel)->isPurchasable(),
-        ));
+        $items = [];
+        foreach ($this->listFromRequest($request)?->getItems()->toArray() ?? [] as $item) {
+            $variant = $item->getVariant();
+            if (null === $variant) {
+                continue;
+            }
+            $availability = $this->availabilityChecker->check($variant, $channel);
+            if ($availability->isPurchasable()) {
+                $items[] = $item;
+
+                continue;
+            }
+            // Skipped because the status changed since the page was opened: say which and why, never silently.
+            $this->addFlash('error', [
+                'message' => 'bwlab_wishlist.cart_item_failed',
+                'parameters' => ['%name%' => $variant->getInventoryName() ?? '', '%reason%' => $this->translator->trans($availability->translationKey())],
+            ]);
+        }
 
         return $this->toCart($request, $items);
     }
