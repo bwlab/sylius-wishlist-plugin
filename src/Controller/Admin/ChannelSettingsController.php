@@ -19,7 +19,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-/** Admin page "Wishlist > Settings": one form per channel. */
+/**
+ * Admin page "Wishlist > Settings": one form per channel.
+ * The admin prefix is in the class route: the app's `routing.controllers` import loads #[Route] controllers by itself.
+ */
+#[Route('/%sylius_admin.path_name%/wishlist/settings')]
 final class ChannelSettingsController extends AbstractController
 {
     /**
@@ -27,6 +31,7 @@ final class ChannelSettingsController extends AbstractController
      * @param FactoryInterface<WishlistChannelSettingsInterface> $settingsFactory
      */
     public function __construct(
+        #[Autowire(service: 'sylius.repository.channel')]
         private readonly ChannelRepositoryInterface $channelRepository,
         private readonly FormFactoryInterface $formFactory,
         #[Autowire(service: 'bwlab_wishlist.repository.channel_settings')]
@@ -38,13 +43,13 @@ final class ChannelSettingsController extends AbstractController
     ) {
     }
 
-    #[Route('/wishlist/settings', name: 'bwlab_wishlist_admin_settings', methods: ['GET'])]
+    #[Route('', name: 'bwlab_wishlist_admin_settings', methods: ['GET'])]
     public function index(): Response
     {
         return $this->renderPage([]);
     }
 
-    #[Route('/wishlist/settings/{code}', name: 'bwlab_wishlist_admin_settings_save', methods: ['POST'])]
+    #[Route('/{code}', name: 'bwlab_wishlist_admin_settings_save', methods: ['POST'])]
     public function save(Request $request, string $code): Response
     {
         $channel = $this->channelRepository->findOneBy(['code' => $code]);

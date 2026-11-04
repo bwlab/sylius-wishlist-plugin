@@ -1,4 +1,0 @@
-# Admin controllers: routes come from #[Route] attributes.
-bwlab_wishlist_admin_controllers:
-    resource: ../../../src/Controller/Admin/
-    type: attribute

@@ -65,6 +65,26 @@ bin/console cache:clear
 
 Released migrations are never modified: upgrades keep existing wishlists, no data reset is required.
 
+## Admin settings and cleanup of expired guest wishlists
+
+Admin menu **Wishlist > Settings**: one form per channel with the guest wishlist lifetime in days
+(empty = bundle default `bwlab_sylius_wishlist.guest_lifetime_days`, minimum 1).
+
+Guest wishlists (no customer) not seen for longer than the channel lifetime are deleted by a console command;
+customer wishlists are never touched. Before deleting, anonymous counters (channel, variant, day, items, quantity)
+are added to `bwlab_wishlist_purge_stat`.
+
+```bash
+bin/console bwlab:wishlist:purge-expired --dry-run   # only counts, deletes nothing
+bin/console bwlab:wishlist:purge-expired
+```
+
+Cron (every night at 03:30):
+
+```cron
+30 3 * * * cd /path/to/shop && php bin/console bwlab:wishlist:purge-expired --env=prod --no-debug >> var/log/wishlist-purge.log 2>&1
+```
+
 ## Development
 
 Unit tests (from the shop where the plugin is installed):
