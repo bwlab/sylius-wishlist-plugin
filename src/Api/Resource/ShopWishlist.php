@@ -42,6 +42,16 @@ final class ShopWishlist
     #[Groups(['bwlab_wishlist:shop'])]
     public ?string $token = null;
 
+    /** Phase 2: id, name (translated) and flag of the default list; `listId` is null until the first item is saved. */
+    #[Groups(['bwlab_wishlist:shop'])]
+    public ?int $listId = null;
+
+    #[Groups(['bwlab_wishlist:shop'])]
+    public string $name = '';
+
+    #[Groups(['bwlab_wishlist:shop'])]
+    public bool $isDefault = true;
+
     #[Groups(['bwlab_wishlist:shop'])]
     public string $channelCode = '';
 

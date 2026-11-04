@@ -17,4 +17,7 @@ final class AddWishlistToCart
     public array $itemIds = [];
 
     public bool $all = false;
+
+    /** Source list (id or IRI). Omitted = the default list. */
+    public int|string|null $list = null;
 }

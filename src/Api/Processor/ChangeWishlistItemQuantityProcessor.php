@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use Bwlab\SyliusWishlistPlugin\Api\Factory\WishlistViewFactory;
 use Bwlab\SyliusWishlistPlugin\Api\Input\ChangeWishlistItemQuantity;
+use Bwlab\SyliusWishlistPlugin\Api\Input\ListReference;
 use Bwlab\SyliusWishlistPlugin\Api\Resource\ShopWishlistItem;
 use Bwlab\SyliusWishlistPlugin\Api\Security\CurrentWishlistItemFinder;
 use Bwlab\SyliusWishlistPlugin\Modifier\WishlistItemModifierInterface;
@@ -27,9 +28,10 @@ final class ChangeWishlistItemQuantityProcessor implements ProcessorInterface
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ShopWishlistItem
     {
         /** @var ChangeWishlistItemQuantity $data */
-        $item = $this->finder->find((int) $uriVariables['id']);
+        $listId = ListReference::fromRequest($context['request'] ?? null);
+        $item = $this->finder->find((int) $uriVariables['id'], $listId);
         $this->modifier->changeQuantity($item, (int) $data->quantity);
-        $this->wishlistRepository->add($this->finder->wishlist());
+        $this->wishlistRepository->add($this->finder->wishlist($listId));
 
         return $this->viewFactory->shopItem($item);
     }

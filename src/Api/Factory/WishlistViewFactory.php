@@ -6,6 +6,7 @@ namespace Bwlab\SyliusWishlistPlugin\Api\Factory;
 
 use Bwlab\SyliusWishlistPlugin\Api\Resource\AdminWishlistItem;
 use Bwlab\SyliusWishlistPlugin\Api\Resource\ShopWishlist;
+use Bwlab\SyliusWishlistPlugin\Api\Resource\ShopWishlistList;
 use Bwlab\SyliusWishlistPlugin\Api\Resource\ShopWishlistItem;
 use Bwlab\SyliusWishlistPlugin\Api\Resource\WishlistItemFields;
 use Bwlab\SyliusWishlistPlugin\Checker\VariantAvailabilityCheckerInterface;
@@ -15,7 +16,9 @@ use Sylius\Component\Core\Calculator\ProductVariantPricesCalculatorInterface;
 use Sylius\Component\Core\Exception\MissingChannelConfigurationException;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
+use Sylius\Component\Locale\Context\LocaleContextInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /** Entity -> API view. Price and availability come from the same services as the shop pages and the cart. */
 final class WishlistViewFactory
@@ -25,6 +28,8 @@ final class WishlistViewFactory
         private readonly ProductVariantPricesCalculatorInterface $priceCalculator,
         #[Autowire('%sylius.security.api_shop_route%')]
         private readonly string $apiShopRoute,
+        private readonly TranslatorInterface $translator,
+        private readonly LocaleContextInterface $localeContext,
     ) {
     }
 
@@ -32,6 +37,9 @@ final class WishlistViewFactory
     {
         $view = new ShopWishlist();
         $view->token = $wishlist->getToken();
+        $view->listId = $wishlist->getId();
+        $view->name = $this->listName($wishlist);
+        $view->isDefault = $wishlist->isDefault();
         $view->channelCode = (string) $wishlist->getChannel()?->getCode();
         $view->localeCode = $wishlist->getLocaleCode();
         $view->createdAt = $this->immutable($wishlist->getCreatedAt());
@@ -45,11 +53,41 @@ final class WishlistViewFactory
         return $view;
     }
 
+    /** The default list is shown translated; the others keep the name chosen by the owner. */
+    public function listName(?WishlistInterface $wishlist): string
+    {
+        if (null === $wishlist || $wishlist->isDefault()) {
+            return $this->translator->trans('default_list_name', [], 'bwlab_wishlist_api', $this->localeContext->getLocaleCode());
+        }
+
+        return $wishlist->getName();
+    }
+
+    public function shopList(WishlistInterface $wishlist, bool $withItems): ShopWishlistList
+    {
+        $view = new ShopWishlistList();
+        $view->id = $wishlist->getId();
+        $view->name = $this->listName($wishlist);
+        $view->isDefault = $wishlist->isDefault();
+        $view->itemsCount = $wishlist->countItems();
+        $view->wishlistToken = $wishlist->getToken();
+        $view->createdAt = $this->immutable($wishlist->getCreatedAt());
+        $view->updatedAt = $this->immutable($wishlist->getUpdatedAt());
+        if ($withItems) {
+            foreach ($wishlist->getItems() as $item) {
+                $view->items[] = $this->shopItem($item);
+            }
+        }
+
+        return $view;
+    }
+
     public function shopItem(WishlistItemInterface $item): ShopWishlistItem
     {
         $view = new ShopWishlistItem();
         $this->fill($view, $item);
         $view->wishlistToken = $item->getWishlist()?->getToken() ?? '';
+        $view->listId = $item->getWishlist()?->getId();
 
         return $view;
     }

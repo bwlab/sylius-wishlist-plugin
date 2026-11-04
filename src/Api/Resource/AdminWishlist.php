@@ -43,6 +43,13 @@ final class AdminWishlist
     #[Groups(['bwlab_wishlist:admin:index'])]
     public ?int $id = null;
 
+    /** Name of the list as stored (the default list is always "My Favorites"). */
+    #[Groups(['bwlab_wishlist:admin:index'])]
+    public string $name = '';
+
+    #[Groups(['bwlab_wishlist:admin:index'])]
+    public bool $isDefault = false;
+
     #[Groups(['bwlab_wishlist:admin:index'])]
     public string $channelCode = '';
 

@@ -19,6 +19,8 @@ final class AdminWishlistFactory
     {
         $view = new AdminWishlist();
         $view->id = $wishlist->getId();
+        $view->name = $wishlist->getName();
+        $view->isDefault = $wishlist->isDefault();
         $view->channelCode = (string) $wishlist->getChannel()?->getCode();
         $customer = $wishlist->getCustomer();
         $view->customerId = $customer?->getId();

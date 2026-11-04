@@ -30,6 +30,7 @@ final class ShopWishlistProvider implements ProviderInterface
 
         // Nothing stored yet: an empty wishlist, never an error.
         $empty = new ShopWishlist();
+        $empty->name = $this->viewFactory->listName(null);
         $empty->channelCode = (string) $this->channelContext->getChannel()->getCode();
 
         return $empty;
