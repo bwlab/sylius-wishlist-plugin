@@ -1,0 +1,132 @@
+{# Loaded once on every shop page (hook sylius_shop.base#javascripts). Progressive enhancement: without it, every form posts normally. #}
+<script>
+(function () {
+    if (window.bwlabWishlistReady) { return; }
+    window.bwlabWishlistReady = true;
+
+    var spinner = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>';
+
+    function setBusy(button, label) {
+        if (button.dataset.bwBusy) { return false; }
+        button.dataset.bwBusy = '1';
+        button.dataset.bwHtml = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = spinner + label;
+        return true;
+    }
+
+    function setIdle(button) {
+        button.disabled = false;
+        if (button.dataset.bwHtml) { button.innerHTML = button.dataset.bwHtml; }
+        delete button.dataset.bwBusy;
+    }
+
+    function toast(type, message) {
+        var old = document.querySelector('[data-bwlab-wishlist-toast]');
+        if (old) { old.remove(); }
+        var box = document.createElement('div');
+        box.className = 'alert alert-' + ('info' === type ? 'info' : 'success') + ' shadow position-fixed top-0 end-0 m-3';
+        box.style.zIndex = '2000';
+        box.setAttribute('role', 'alert');
+        box.setAttribute('data-bwlab-wishlist-toast', '');
+        box.setAttribute('data-test-sylius-flash-message', '');
+        box.textContent = message;
+        document.body.appendChild(box);
+        setTimeout(function () { box.remove(); }, 4000);
+    }
+
+    function updateCounter(count) {
+        var link = document.querySelector('[data-test-bwlab-wishlist-link]');
+        if (!link) { return; }
+        var badge = link.querySelector('[data-test-bwlab-wishlist-count]');
+        if (count <= 0) { if (badge) { badge.remove(); } return; }
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'position-absolute top-0 start-0 badge rounded-pill bg-primary';
+            link.appendChild(badge);
+        }
+        badge.setAttribute('data-test-bwlab-wishlist-count', count);
+        badge.textContent = count;
+    }
+
+    // Saves through fetch; any failure falls back to the normal form post (which also shows the flash message).
+    function save(button, url, data, fallback) {
+        if (!setBusy(button, button.dataset.savingLabel || '')) { return; }
+        fetch(url, {
+            method: 'POST',
+            body: data,
+            credentials: 'same-origin',
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+        }).then(function (response) {
+            if (!response.ok) { throw new Error('wishlist'); }
+            return response.json();
+        }).then(function (result) {
+            updateCounter(result.count);
+            toast(result.type, result.message);
+            setIdle(button);
+            var label = button.querySelector('[data-bw-label]');
+            if (label) { label.textContent = button.dataset.savedLabel; }
+            var icon = button.querySelector('svg');
+            if (icon) { icon.style.fill = 'currentColor'; }
+            button.dataset.bwSaved = '1';
+            button.disabled = true;
+        }).catch(function () {
+            setIdle(button);
+            fallback();
+        });
+    }
+
+    document.addEventListener('click', function (event) {
+        var button = event.target.closest('[data-bwlab-wishlist-pdp]');
+        if (!button || button.disabled) { return; }
+        var data = new FormData();
+        data.append('_token', button.dataset.token);
+        data.append('variant', button.dataset.variant);
+        data.append('source', 'pdp');
+        data.append('returnTo', button.dataset.return);
+        var form = button.closest('form');
+        var quantity = form ? form.querySelector('input[name$="[quantity]"]') : null;
+        if (quantity && quantity.value) { data.append('quantity', quantity.value); }
+
+        save(button, button.dataset.url, data, function () {
+            var plain = document.createElement('form');
+            plain.method = 'post';
+            plain.action = button.dataset.url;
+            data.forEach(function (value, name) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = value;
+                plain.appendChild(input);
+            });
+            document.body.appendChild(plain);
+            plain.submit();
+        });
+    });
+
+    document.addEventListener('submit', function (event) {
+        var form = event.target;
+        if (form.matches('[data-bwlab-wishlist-save]')) {
+            event.preventDefault();
+            var button = form.querySelector('button[type=submit]');
+            if (button.dataset.bwSaved) { return; }
+            save(button, form.action, new FormData(form), function () { HTMLFormElement.prototype.submit.call(form); });
+            return;
+        }
+        if (form.matches('[data-bwlab-busy]')) {
+            if (form.dataset.bwBusy) { event.preventDefault(); return; }
+            form.dataset.bwBusy = '1';
+            var submitter = event.submitter || form.querySelector('button[type=submit]');
+            // Disable after the browser has collected the form data.
+            setTimeout(function () { setBusy(submitter, form.dataset.bwlabBusy); }, 0);
+        }
+    });
+
+    // Back/forward cache: never show a page stuck in the "busy" state.
+    window.addEventListener('pageshow', function (event) {
+        if (!event.persisted) { return; }
+        document.querySelectorAll('[data-bw-busy]').forEach(setIdle);
+        document.querySelectorAll('form[data-bw-busy]').forEach(function (form) { delete form.dataset.bwBusy; });
+    });
+})();
+</script>

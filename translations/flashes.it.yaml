@@ -10,3 +10,4 @@ bwlab_wishlist:
     cart_item_failed: '"%name%" non è stato aggiunto al carrello: %reason%'
     admin:
         settings_saved: Impostazioni wishlist salvate.
+    quantity_invalid: Inserisci un numero intero da 1 a 9999. La quantità non è stata modificata.

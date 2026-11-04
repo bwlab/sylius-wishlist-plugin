@@ -22,6 +22,9 @@ bwlab_wishlist:
             add_all_available: Add all available to cart
             select_item: Select this product
             choose_variant: Choose options
+            saving: Saving…
+            saved: In wishlist
+            adding_to_cart: Adding to cart…
             choose_variant_hint: Select the product options first, then save it.
         admin:
             menu:

@@ -18,10 +18,12 @@ use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Repository\ProductVariantRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /** Storefront wishlist: plain HTML forms + CSRF, no JavaScript needed. */
 #[Route('/{_locale}/wishlist', requirements: ['_locale' => '^[A-Za-z]{2,4}(_([A-Za-z]{4}|[0-9]{3}))?(_([A-Za-z]{2}|[0-9]{3}))?$'])]
@@ -39,6 +41,7 @@ final class WishlistController extends AbstractController
         #[Autowire(service: 'sylius.repository.product_variant')]
         private readonly ProductVariantRepositoryInterface $variantRepository,
         private readonly WishlistCartAdder $cartAdder,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -62,30 +65,27 @@ final class WishlistController extends AbstractController
     public function add(Request $request): Response
     {
         if (!$this->validToken($request)) {
-            return $this->invalid($request);
+            return $this->feedback($request, 'error', 'bwlab_wishlist.invalid_request');
         }
 
         $variant = $this->variantRepository->find((int) $request->request->get('variant'));
         $source = (string) $request->request->get('source');
         if (null === $variant || WishlistAvailability::Unavailable === $this->availabilityChecker->check($variant, $this->channel())) {
-            $this->addFlash('error', 'bwlab_wishlist.variant_not_found');
-
-            return $this->back($request);
+            return $this->feedback($request, 'error', 'bwlab_wishlist.variant_not_found');
         }
 
         $wishlist = $this->resolver->getOrCreate();
         $added = $this->modifier->addVariant(
             $wishlist,
             $variant,
-            1,
+            max(1, min(9999, (int) $request->request->get('quantity', 1))),
             \in_array($source, [WishlistItemInterface::SOURCE_PDP, WishlistItemInterface::SOURCE_PLP], true) ? $source : WishlistItemInterface::SOURCE_PDP,
         );
         if ($added) {
             $this->wishlistRepository->add($wishlist);
         }
-        $this->addFlash($added ? 'success' : 'info', $added ? 'bwlab_wishlist.item_added' : 'bwlab_wishlist.item_already_present');
 
-        return $this->back($request);
+        return $this->feedback($request, $added ? 'success' : 'info', $added ? 'bwlab_wishlist.item_added' : 'bwlab_wishlist.item_already_present', $wishlist);
     }
 
     #[Route('/item/{id}/remove', name: 'bwlab_wishlist_shop_remove', requirements: ['id' => '\d+'], methods: ['POST'])]
@@ -113,7 +113,14 @@ final class WishlistController extends AbstractController
             return $this->invalid($request);
         }
 
-        $this->modifier->changeQuantity($item, max(1, min(9999, (int) $request->request->get('quantity'))));
+        $raw = $request->request->get('quantity');
+        if (!\is_string($raw) || 1 !== preg_match('/^\d{1,4}$/', trim($raw)) || 1 > (int) $raw) {
+            $this->addFlash('error', 'bwlab_wishlist.quantity_invalid');
+
+            return $this->back($request);
+        }
+
+        $this->modifier->changeQuantity($item, (int) $raw);
         $this->wishlistRepository->add($item->getWishlist());
         $this->addFlash('success', 'bwlab_wishlist.quantity_changed');
 
@@ -217,11 +224,25 @@ final class WishlistController extends AbstractController
         return $this->isCsrfTokenValid(self::CSRF_TOKEN_ID, (string) $request->request->get('_token'));
     }
 
-    private function invalid(Request $request): RedirectResponse
+    private function invalid(Request $request): Response
     {
-        $this->addFlash('error', 'bwlab_wishlist.invalid_request');
+        return $this->feedback($request, 'error', 'bwlab_wishlist.invalid_request');
+    }
 
-        return $this->back($request);
+    /** Plain form post: flash + redirect. Script call (fetch): JSON with the message and the row count, no flash. */
+    private function feedback(Request $request, string $type, string $messageKey, ?WishlistInterface $wishlist = null): Response
+    {
+        if (!$request->isXmlHttpRequest()) {
+            $this->addFlash($type, $messageKey);
+
+            return $this->back($request);
+        }
+
+        return new JsonResponse([
+            'count' => $wishlist?->countItems() ?? $this->resolver->find()?->countItems() ?? 0,
+            'message' => $this->translator->trans($messageKey, [], 'flashes'),
+            'type' => $type,
+        ], 'error' === $type ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK);
     }
 
     private function back(Request $request): RedirectResponse
