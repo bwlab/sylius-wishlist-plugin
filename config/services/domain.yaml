@@ -1,0 +1,44 @@
+# Domain services (phase A). Other areas: shop.yaml, identity.yaml, admin.yaml, api.yaml.
+services:
+    _defaults:
+        autowire: false
+        autoconfigure: false
+        public: false
+
+    bwlab_wishlist.checker.variant_availability:
+        class: Bwlab\SyliusWishlistPlugin\Checker\VariantAvailabilityChecker
+        arguments: ['@sylius.checker.inventory.availability']
+    Bwlab\SyliusWishlistPlugin\Checker\VariantAvailabilityCheckerInterface: '@bwlab_wishlist.checker.variant_availability'
+
+    bwlab_wishlist.modifier.wishlist_item:
+        class: Bwlab\SyliusWishlistPlugin\Modifier\WishlistItemModifier
+        arguments: ['@bwlab_wishlist.factory.wishlist_item']
+    Bwlab\SyliusWishlistPlugin\Modifier\WishlistItemModifierInterface: '@bwlab_wishlist.modifier.wishlist_item'
+
+    bwlab_wishlist.provider.guest_lifetime:
+        class: Bwlab\SyliusWishlistPlugin\Provider\GuestLifetimeProvider
+        arguments:
+            - '@bwlab_wishlist.repository.channel_settings'
+            - '%bwlab_wishlist.guest_lifetime_days%'
+    Bwlab\SyliusWishlistPlugin\Provider\GuestLifetimeProviderInterface: '@bwlab_wishlist.provider.guest_lifetime'
+
+    bwlab_wishlist.resolver.current_wishlist:
+        class: Bwlab\SyliusWishlistPlugin\Resolver\CurrentWishlistResolver
+        arguments:
+            - '@bwlab_wishlist.repository.wishlist'
+            - '@bwlab_wishlist.factory.wishlist'
+            - '@sylius.context.channel'
+            - '@sylius.context.customer'
+            - '@sylius.context.locale'
+            - '@request_stack'
+            - '%bwlab_wishlist.cookie_name%'
+    Bwlab\SyliusWishlistPlugin\Resolver\CurrentWishlistResolverInterface: '@bwlab_wishlist.resolver.current_wishlist'
+
+    bwlab_wishlist.listener.wishlist_cookie:
+        class: Bwlab\SyliusWishlistPlugin\EventListener\WishlistCookieListener
+        arguments:
+            - '@bwlab_wishlist.repository.wishlist'
+            - '@bwlab_wishlist.provider.guest_lifetime'
+            - '%bwlab_wishlist.cookie_name%'
+        tags:
+            - { name: kernel.event_listener, event: kernel.response }
