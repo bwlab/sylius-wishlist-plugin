@@ -1,0 +1,83 @@
+{# Read-only: the wishlists of the customer, per channel. #}
+{% set customer = hookable_metadata.context.resource %}
+{% set channels = bwlab_wishlist_customer_lists(customer) %}
+
+<div class="mb-3" {{ sylius_test_html_attribute('customer-wishlists') }}>
+    <h3 class="mb-3">{{ ux_icon('tabler:heart-handshake', {class: 'icon me-1'}) }}{{ 'bwlab_wishlist.ui.admin.customer.title'|trans }}</h3>
+
+    {% if channels is empty %}
+        <div class="card">
+            <div class="card-body text-secondary" {{ sylius_test_html_attribute('customer-wishlists-empty') }}>{{ 'bwlab_wishlist.ui.admin.customer.none'|trans }}</div>
+        </div>
+    {% endif %}
+
+    {% for group in channels %}
+        <div class="card mb-3" data-test-channel="{{ group.channel.code }}">
+            <div class="card-header">
+                <h4 class="card-title">
+                    <span class="badge me-2" style="background-color: {{ group.channel.color|default('#000') }}"></span>
+                    {{ group.channel.name }}
+                </h4>
+            </div>
+            <div class="card-body">
+                {% for view in group.wishlists %}
+                    {% set wishlist = view.wishlist %}
+                    <div class="{{ not loop.last ? 'mb-4' : '' }}" data-test-wishlist="{{ wishlist.id }}">
+                        <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
+                            <strong class="fs-4">{{ wishlist.default ? 'bwlab_wishlist.ui.admin.customer.default_name'|trans : wishlist.name }}</strong>
+                            <span class="badge bg-blue-lt">{{ 'bwlab_wishlist.ui.admin.customer.products_count'|trans({'%count%': wishlist.countItems}) }}</span>
+                            <span class="text-secondary">{{ 'bwlab_wishlist.ui.admin.customer.created_at'|trans }}: {{ wishlist.createdAt|date('d-m-Y H:i') }}</span>
+                            <span class="text-secondary">{{ 'bwlab_wishlist.ui.admin.customer.updated_at'|trans }}: {{ (wishlist.updatedAt ?? wishlist.createdAt)|date('d-m-Y H:i') }}</span>
+                        </div>
+
+                        {% if view.items is empty %}
+                            <div class="text-secondary">{{ 'bwlab_wishlist.ui.admin.customer.empty_list'|trans }}</div>
+                        {% else %}
+                            <div class="table-responsive">
+                                <table class="table table-vcenter card-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="w-1"></th>
+                                            <th>{{ 'bwlab_wishlist.ui.admin.customer.product'|trans }}</th>
+                                            <th class="text-center">{{ 'bwlab_wishlist.ui.admin.customer.quantity'|trans }}</th>
+                                            <th>{{ 'bwlab_wishlist.ui.admin.customer.added_at'|trans }}</th>
+                                            <th>{{ 'bwlab_wishlist.ui.admin.customer.source'|trans }}</th>
+                                            <th>{{ 'bwlab_wishlist.ui.admin.customer.availability'|trans }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for row in view.items %}
+                                            {% set variant = row.item.variant %}
+                                            {% set product = variant.product %}
+                                            {% set image = product.images.first %}
+                                            <tr data-test-item="{{ row.item.id }}">
+                                                <td>
+                                                    {% if image %}
+                                                        <span class="avatar" style="background-image: url('{{ image.path|imagine_filter('sylius_small') }}')"></span>
+                                                    {% else %}
+                                                        <span class="avatar">{{ ux_icon('tabler:photo', {class: 'icon'}) }}</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <a href="{{ path('sylius_admin_product_update', {id: product.id}) }}">{{ product.name ?? product.code }}</a>
+                                                    <div class="text-secondary small">{{ variant.name ?: variant.code }}</div>
+                                                </td>
+                                                <td class="text-center">{{ row.item.quantity }}</td>
+                                                <td>{{ row.item.addedAt|date('d-m-Y H:i') }}</td>
+                                                <td>{{ ('bwlab_wishlist.ui.admin.customer.source_' ~ row.item.source)|trans }}</td>
+                                                <td>
+                                                    {% set colors = {available: 'green', out_of_stock: 'orange', unavailable: 'red'} %}
+                                                    <span class="badge bg-{{ colors[row.availability.value] }}-lt">{{ row.availability.translationKey|trans }}</span>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+</div>

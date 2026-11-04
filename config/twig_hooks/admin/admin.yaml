@@ -1,3 +1,8 @@
 # Twig hooks (admin). Hook names: verify with vendor/bin/mate tools:call sylius_hooks_find_for_template.
 sylius_twig_hooks:
-    hooks: {}
+    hooks:
+        # Customer page: read-only "Wishlist" section after "general" (priority 0).
+        'sylius_admin.customer.show.content.sections':
+            wishlists:
+                template: '@BwlabSyliusWishlistPlugin/admin/customer/wishlists.html.twig'
+                priority: -100

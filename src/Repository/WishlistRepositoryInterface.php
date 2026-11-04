@@ -23,4 +23,15 @@ interface WishlistRepositoryInterface extends RepositoryInterface
 
     /** @return list<WishlistInterface> all lists of the guest owner token in the channel, default first, then by creation */
     public function findAllGuestByTokenAndChannel(string $token, ChannelInterface $channel): array;
+
+    /**
+     * Read-only, for the admin customer page: ALL lists of the customer (every channel) with rows, variants, products,
+     * translations, channels and images in ONE query (no N+1). Order is not guaranteed: the caller sorts.
+     *
+     * @return list<WishlistInterface>
+     */
+    public function findAllWithItemsByCustomer(CustomerInterface $customer): array;
+
+    /** Total number of rows over all lists of the customer. */
+    public function countItemsByCustomer(CustomerInterface $customer): int;
 }
