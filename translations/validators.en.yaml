@@ -2,3 +2,11 @@ bwlab_wishlist:
     admin:
         settings:
             min_one_day: The lifetime must be at least 1 day.
+    list:
+        name:
+            not_blank: Please enter a name for the list.
+            max_length: The list name cannot be longer than %limit% characters.
+            unique: You already have a list named "%name%".
+        max_lists: You can have at most %limit% lists.
+        delete_default: The default list cannot be deleted.
+        move_same_list: The product is already in this list.

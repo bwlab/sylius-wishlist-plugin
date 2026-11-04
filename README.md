@@ -65,6 +65,14 @@ bin/console cache:clear
 
 Released migrations are never modified: upgrades keep existing wishlists, no data reset is required.
 
+### 0.1.0 → 0.2.0 (multiple named lists)
+
+1. Back up the database.
+2. Run the commands above. The migration `Version20261104160000` adds the list name and the default flag, replaces the unique keys (one wishlist per customer → unique list name per owner and channel) and turns every existing wishlist into the default list «My Favorites». Items, quantities and dates are kept.
+3. Nothing to change in the shop: phase 1 routes and API calls without a list keep working on the default list. The guest cookie keeps its name and lifetime; it now identifies the owner of all their lists.
+
+The migration cannot be reverted (`migrate prev` refuses): going back would delete the extra lists.
+
 ## Admin settings and cleanup of expired guest wishlists
 
 Admin menu **Wishlist > Settings**: one form per channel with the guest wishlist lifetime in days

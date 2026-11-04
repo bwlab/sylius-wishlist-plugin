@@ -13,8 +13,9 @@ use Sylius\Component\Core\Model\ProductVariantInterface;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'bwlab_wishlist_wishlist')]
-#[ORM\UniqueConstraint(name: 'bwlab_wishlist_customer_channel', columns: ['customer_id', 'channel_id'])]
-#[ORM\UniqueConstraint(name: 'bwlab_wishlist_token', columns: ['token'])]
+// Phase 2: one owner (customer, or guest token shared by all its lists) has many lists; names unique per owner and channel, case-insensitive.
+#[ORM\UniqueConstraint(name: 'bwlab_wishlist_customer_channel_name', columns: ['customer_id', 'channel_id', 'name_canonical'])]
+#[ORM\UniqueConstraint(name: 'bwlab_wishlist_token_channel_name', columns: ['token', 'channel_id', 'name_canonical'])]
 #[ORM\Index(name: 'bwlab_wishlist_last_seen_idx', columns: ['last_seen_at'])]
 class Wishlist implements WishlistInterface
 {
@@ -33,6 +34,16 @@ class Wishlist implements WishlistInterface
 
     #[ORM\Column(name: 'token', type: 'string', length: 64)]
     protected string $token;
+
+    #[ORM\Column(name: 'name', type: 'string', length: 60)]
+    protected string $name = self::DEFAULT_NAME;
+
+    /** Lower-cased trimmed name, binary collation: the case-insensitive uniqueness key on MySQL. */
+    #[ORM\Column(name: 'name_canonical', type: 'string', length: 60, options: ['collation' => 'utf8mb4_bin'])]
+    protected string $nameCanonical = 'my favorites';
+
+    #[ORM\Column(name: 'is_default', type: 'boolean', options: ['default' => false])]
+    protected bool $default = false;
 
     #[ORM\Column(name: 'locale_code', type: 'string', length: 16, nullable: true)]
     protected ?string $localeCode = null;
@@ -97,6 +108,37 @@ class Wishlist implements WishlistInterface
     public function setToken(string $token): void
     {
         $this->token = $token;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = trim($name);
+        $this->nameCanonical = self::canonicalize($name);
+    }
+
+    public function getNameCanonical(): string
+    {
+        return $this->nameCanonical;
+    }
+
+    public static function canonicalize(string $name): string
+    {
+        return mb_strtolower(trim($name));
+    }
+
+    public function isDefault(): bool
+    {
+        return $this->default;
+    }
+
+    public function setDefault(bool $default): void
+    {
+        $this->default = $default;
     }
 
     public function getLocaleCode(): ?string

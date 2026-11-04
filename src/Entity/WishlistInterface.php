@@ -13,6 +13,25 @@ use Sylius\Resource\Model\TimestampableInterface;
 
 interface WishlistInterface extends ResourceInterface, TimestampableInterface
 {
+    /** Name of the default list (created at first save, migrated from phase 1). The UI may show it translated. */
+    public const DEFAULT_NAME = 'My Favorites';
+
+    public const NAME_MAX_LENGTH = 60;
+
+    /** Maximum lists per owner and channel. */
+    public const MAX_LISTS = 20;
+
+    public function getName(): string;
+
+    /** Trims the name and updates the canonical (lower-case) key. No validation here: see WishlistNamePolicy. */
+    public function setName(string $name): void;
+
+    public function getNameCanonical(): string;
+
+    public function isDefault(): bool;
+
+    public function setDefault(bool $default): void;
+
     public function getChannel(): ?ChannelInterface;
 
     public function setChannel(?ChannelInterface $channel): void;
@@ -23,6 +42,7 @@ interface WishlistInterface extends ResourceInterface, TimestampableInterface
 
     public function isGuest(): bool;
 
+    /** Owner token: shared by all lists of the same guest (cookie bwlab_wishlist). Irrelevant for customer lists. */
     public function getToken(): string;
 
     public function setToken(string $token): void;

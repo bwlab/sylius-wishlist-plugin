@@ -29,11 +29,19 @@ final class GuestWishlistClaimerTest extends TestCase
         return new GuestWishlistClaimer($repo, new WishlistMerger(), $channels, $stack, 'bwlab_wishlist');
     }
 
+    private static function defaultList(): Wishlist
+    {
+        $wishlist = new Wishlist();
+        $wishlist->setDefault(true);
+
+        return $wishlist;
+    }
+
     #[Test]
     public function a_failing_save_keeps_the_cookie_and_does_not_throw(): void
     {
         $repo = $this->createStub(WishlistRepositoryInterface::class);
-        $repo->method('findOneGuestByTokenAndChannel')->willReturn(new Wishlist());
+        $repo->method('findAllGuestByTokenAndChannel')->willReturn([self::defaultList()]);
         $repo->method('add')->willThrowException(new \RuntimeException('unique violation'));
         $request = Request::create('/', cookies: ['bwlab_wishlist' => 'tok']);
 
@@ -46,7 +54,7 @@ final class GuestWishlistClaimerTest extends TestCase
     public function a_successful_claim_asks_to_clear_the_cookie(): void
     {
         $repo = $this->createStub(WishlistRepositoryInterface::class);
-        $repo->method('findOneGuestByTokenAndChannel')->willReturn(new Wishlist());
+        $repo->method('findAllGuestByTokenAndChannel')->willReturn([self::defaultList()]);
         $request = Request::create('/', cookies: ['bwlab_wishlist' => 'tok']);
 
         $this->claimer($repo, $request)->claim($this->createStub(CustomerInterface::class));

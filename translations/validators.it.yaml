@@ -2,3 +2,11 @@ bwlab_wishlist:
     admin:
         settings:
             min_one_day: La durata deve essere di almeno 1 giorno.
+    list:
+        name:
+            not_blank: Inserisci un nome per la lista.
+            max_length: Il nome della lista non può superare %limit% caratteri.
+            unique: Hai già una lista chiamata «%name%».
+        max_lists: Puoi avere al massimo %limit% liste.
+        delete_default: La lista predefinita non si può eliminare.
+        move_same_list: Il prodotto è già in questa lista.

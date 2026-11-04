@@ -22,4 +22,15 @@ interface WishlistItemModifierInterface
     public function removeVariant(WishlistInterface $wishlist, ProductVariantInterface $variant): void;
 
     public function changeQuantity(WishlistItemInterface $item, int $quantity): void;
+
+    /**
+     * Moves the row to $target (another list of the same owner: the caller checks ownership).
+     * If $target already has the variant: the source row is removed, the target row keeps the greater quantity and the oldest addedAt.
+     * Otherwise the row itself moves, keeping addedAt, quantity and source.
+     *
+     * @return WishlistItemInterface the row now in $target
+     *
+     * @throws \Bwlab\SyliusWishlistPlugin\Exception\WishlistOperationException when $target is already the row's list
+     */
+    public function moveItem(WishlistItemInterface $item, WishlistInterface $target): WishlistItemInterface;
 }
