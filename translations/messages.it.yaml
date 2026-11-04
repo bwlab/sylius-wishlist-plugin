@@ -22,6 +22,9 @@ bwlab_wishlist:
             add_all_available: Aggiungi tutti i disponibili al carrello
             select_item: Seleziona questo prodotto
             choose_variant: Scegli le opzioni
+            saving: Salvataggio…
+            saved: Nella wishlist
+            adding_to_cart: Aggiunta al carrello…
             choose_variant_hint: Scegli prima le opzioni del prodotto, poi salvalo.
         admin:
             menu:

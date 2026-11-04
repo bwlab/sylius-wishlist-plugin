@@ -1,11 +1,11 @@
 {# Variables: variant, source (pdp|plp), class, return_to (optional) #}
-<form action="{{ path('bwlab_wishlist_shop_add') }}" method="post" class="d-inline">
+<form action="{{ path('bwlab_wishlist_shop_add') }}" method="post" class="d-inline" data-bwlab-wishlist-save>
     <input type="hidden" name="_token" value="{{ csrf_token('bwlab_wishlist') }}">
     <input type="hidden" name="variant" value="{{ variant.id }}">
     <input type="hidden" name="source" value="{{ source }}">
     <input type="hidden" name="returnTo" value="{{ return_to|default(app.request.requestUri) }}">
-    <button type="submit" class="btn {{ class|default('btn-outline-secondary') }}" data-test-bwlab-wishlist-add="{{ source }}">
+    <button type="submit" class="btn {{ class|default('btn-outline-secondary') }}" data-test-bwlab-wishlist-add="{{ source }}" data-saving-label="{{ 'bwlab_wishlist.ui.shop.saving'|trans }}" data-saved-label="{{ 'bwlab_wishlist.ui.shop.saved'|trans }}">
         {{ ux_icon('tabler:heart', {class: 'icon icon-sm'}) }}
-        {{ 'bwlab_wishlist.ui.add_to_wishlist'|trans }}
+        <span data-bw-label>{{ 'bwlab_wishlist.ui.add_to_wishlist'|trans }}</span>
     </button>
 </form>

@@ -2,6 +2,7 @@ bwlab_wishlist:
     admin:
         settings:
             min_one_day: The lifetime must be at least 1 day.
+            max_days: The lifetime cannot be longer than 3650 days (10 years).
     list:
         name:
             not_blank: Please enter a name for the list.

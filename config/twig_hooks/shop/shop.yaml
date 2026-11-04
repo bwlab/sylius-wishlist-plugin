@@ -23,3 +23,9 @@ sylius_twig_hooks:
             wishlist:
                 template: '@BwlabSyliusWishlistPlugin/shop/product/card_button.html.twig'
                 priority: -100
+
+        # One small script for the buttons' progress feedback and AJAX saving.
+        'sylius_shop.base#javascripts':
+            bwlab_wishlist:
+                template: '@BwlabSyliusWishlistPlugin/shop/_script.html.twig'
+                priority: -10
